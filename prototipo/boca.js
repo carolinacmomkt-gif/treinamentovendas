@@ -18,6 +18,8 @@ const ESTILO_VOZ = {
   Raquel: { genero: "F", tom: 1.0, ritmo: 1.0 },
 };
 
+const VOZ_GEMINI = new URLSearchParams(location.search).get("voz") === "gemini";
+
 let detector = null;
 async function carregarDetector() {
   if (detector) return detector;
@@ -310,9 +312,11 @@ export async function montar(container, personagem) {
 
   const retrato = {
     fonte: null,
-    // Fala com a voz do Gemini; se não der, usa a voz do navegador.
+    // Fala na hora com a voz do navegador. A voz do Gemini (uns 4 s de espera e só 10 falas
+    // grátis por dia) só é usada se ligada com ?voz=gemini no endereço.
     async falar(texto) {
       audioPronto(); falaCancelada = false;
+      if (!VOZ_GEMINI) { retrato.fonte = "navegador"; return falarNavegador(texto); }
       try { await falarComGemini(texto); retrato.fonte = "gemini"; }
       catch (e) { console.warn("Usando a voz do navegador:", e.message); retrato.fonte = "navegador"; retrato.motivo = e.message; await falarNavegador(texto); }
     },
@@ -321,7 +325,7 @@ export async function montar(container, personagem) {
     detectou: () => !!pts,
     fixar(valor) { fixo = valor; },
     // Já pede a voz desta fala, para tocar sem espera quando chegar a hora.
-    preparar(texto) { if (!preparadas.has(texto)) { const p = vozDaFrase(texto); p.catch(() => {}); preparadas.set(texto, p); } },
+    preparar(texto) { if (VOZ_GEMINI && !preparadas.has(texto)) { const p = vozDaFrase(texto); p.catch(() => {}); preparadas.set(texto, p); } },
     destruir() { ativo = false; obs.disconnect(); retrato.calar(); },
   };
   return retrato;
