@@ -49,6 +49,32 @@ body::before, body::after {
 body::before { top: 0; left: 0; background: linear-gradient(135deg, #0a4a27 0, #19b964 8%, #a8f7cd 12%, #14a057 14%, #0c6a36 18%, transparent 18% 24%, #0b4d2a 24%, #16774a 28%, #0b4d2a 32%, transparent 32%); }
 body::after { bottom: 0; right: 0; background: linear-gradient(315deg, #0a4a27 0, #19b964 8%, #a8f7cd 12%, #14a057 14%, #0c6a36 18%, transparent 18% 24%, #0b4d2a 24%, #16774a 28%, #0b4d2a 32%, transparent 32%); }
 
+/* Fundo animado: luzes verdes que flutuam devagar, grade de fundo e um reflexo metálico passando. */
+.fundo-animado { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+.fundo-animado i { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; will-change: transform; }
+.fundo-animado i:nth-child(1) { top: -30vmax; left: -20vmax; background: radial-gradient(circle, rgba(31,213,122,.20), transparent 62%); animation: deriva-1 26s ease-in-out infinite alternate; }
+.fundo-animado i:nth-child(2) { bottom: -35vmax; right: -25vmax; background: radial-gradient(circle, rgba(15,159,82,.24), transparent 62%); animation: deriva-2 32s ease-in-out infinite alternate; }
+.fundo-animado i:nth-child(3) { top: 20%; left: 35%; width: 50vmax; height: 50vmax; background: radial-gradient(circle, rgba(201,251,224,.07), transparent 60%); animation: deriva-3 38s ease-in-out infinite alternate; }
+.fundo-animado b {
+  position: absolute; inset: -48px;
+  background-image: linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 75%);
+  animation: grade 20s linear infinite;
+}
+.fundo-animado::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(115deg, transparent 42%, rgba(201,251,224,.045) 50%, transparent 58%);
+  background-size: 300% 100%; animation: reflexo 14s ease-in-out infinite;
+}
+@keyframes deriva-1 { to { transform: translate(28vmax, 18vmax) scale(1.15); } }
+@keyframes deriva-2 { to { transform: translate(-30vmax, -14vmax) scale(1.2); } }
+@keyframes deriva-3 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-18vmax, 10vmax) scale(1.25); } 100% { transform: translate(12vmax, -12vmax) scale(.9); } }
+@keyframes grade { to { transform: translate(48px, 48px); } }
+@keyframes reflexo { 0% { background-position: 100% 0; } 60%, 100% { background-position: -50% 0; } }
+body::before, body::after { animation: faixas 6s ease-in-out infinite alternate; }
+@keyframes faixas { from { opacity: .4; } to { opacity: .7; } }
+
 h1, h2, h3, h4 { font-family: var(--titulo); letter-spacing: -.01em; }
 h1 { background: var(--prata); -webkit-background-clip: text; background-clip: text; color: transparent; }
 h1 .emoji { color: initial; }

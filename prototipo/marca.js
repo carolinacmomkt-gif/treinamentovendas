@@ -23,6 +23,8 @@
 
   // Preenche qualquer elemento com data-marca="logo" (símbolo + nome).
   document.addEventListener("DOMContentLoaded", () => {
+    document.body.insertAdjacentHTML("afterbegin",
+      '<div class="fundo-animado" aria-hidden="true"><i></i><i></i><i></i><b></b></div>');
     document.querySelectorAll('[data-marca="logo"]').forEach((el) => {
       el.innerHTML = `${logoClosing(Number(el.dataset.tamanho) || 34)}<span class="wordmark">CLOSING</span>`;
     });
