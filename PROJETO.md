@@ -119,6 +119,12 @@ A tela imita uma videochamada de verdade (com visual próprio, sem copiar nenhum
 
 Protótipo navegável em `prototipo/sala.html`.
 
+### Personagens e cenários em 3D
+- Os personagens são montados em 3D no navegador (Three.js, `prototipo/avatar3d.js`) a partir das características de cada um. Não há modelos de terceiros, então não há licença a pagar.
+- Eles respiram, piscam, olham em volta, mexem a cabeça, levantam a sobrancelha e abrem a boca ao falar. A câmera acompanha o mouse para dar profundidade. Na v1, a boca vai seguir o volume da voz do ElevenLabs (`cena.volume()`).
+- 10 cenários 3D: escritório, consultório, clínica odontológica, escritório de advocacia, imobiliária (vista da cidade), galpão (painel solar e estoque), academia (neon verde), marcenaria, loja de celulares e home office. No automático, o cenário combina com o nicho do cliente; o botão de cenário na barra da sala troca na hora.
+- Se o navegador não suportar 3D, a sala volta para o desenho 2D.
+
 ### Contrato fechado
 Quando a IA avaliadora confirma que você fechou (o cliente aceitou a proposta ou o próximo passo com data, conforme o modo):
 - Toca um **som de caixa registradora** (gaveta, sino e moedas, gerado no próprio navegador, sem arquivo de áudio de terceiros).

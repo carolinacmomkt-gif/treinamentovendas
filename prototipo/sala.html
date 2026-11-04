@@ -6,6 +6,7 @@
 <title>Sala de reunião · Closing</title>
 <link rel="icon" href="marca/icone.svg" type="image/svg+xml">
 <link rel="stylesheet" href="estilo.css">
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }</script>
 <style>
   :root {
     --fundo: #050a07; --painel: #0c1510; --painel-2: #111e17; --texto: #eef0f4; --suave: #9aa1b2;
@@ -52,6 +53,15 @@
   .cliente svg { width: 100%; height: 100%; display: block; }
   .cliente { transform: perspective(900px) rotateY(calc(var(--px, 0) * 5deg)) rotateX(calc(var(--py, 0) * -4deg)); transform-style: preserve-3d; }
   .palco.falando .cliente { box-shadow: 0 0 0 4px var(--verde), 0 0 40px rgba(34,197,94,.35); }
+  /* Modo 3D: a cena ocupa o palco inteiro, como uma câmera de videochamada. */
+  .palco.modo-3d .cliente { position: absolute; inset: 0; width: auto; aspect-ratio: auto; border-radius: 16px; transform: none; box-shadow: none; }
+  .palco.modo-3d .cliente canvas { display: block; }
+  .palco.modo-3d.falando .cliente { box-shadow: inset 0 0 0 3px var(--verde); }
+  .palco.modo-3d .cliente::after { content: ""; position: absolute; inset: 0; border-radius: 16px; pointer-events: none; transition: box-shadow .2s; }
+  .palco.modo-3d.falando .cliente::after { box-shadow: inset 0 0 0 3px var(--verde), inset 0 0 40px rgba(34,224,127,.25); }
+  .palco .carregando { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.55); padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--suave); }
+  .cenarios .cartao { padding: 0; }
+  .cenarios .amostra { height: 90px; display: grid; place-items: center; font-size: 34px; }
   .etiqueta { position: absolute; left: 16px; bottom: 16px; background: rgba(0,0,0,.55); padding: 6px 12px; border-radius: 8px; font-size: 14px; }
   .etiqueta small { color: var(--suave); }
   .voce { position: absolute; right: 16px; bottom: 16px; width: 200px; aspect-ratio: 16/10; background: var(--painel-2); border-radius: 12px; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--borda); }
@@ -187,6 +197,7 @@
     <button class="ctl" id="mic" title="Microfone"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
     <button class="ctl" id="cam" title="Câmera"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3z"/></svg></button>
     <button class="ctl" id="cc" title="Legendas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10.5a2 2 0 1 0 0 3M17 10.5a2 2 0 1 0 0 3"/></svg></button>
+    <button class="ctl" id="btn-cenario" title="Trocar cenário"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6"/></svg></button>
     <button class="ctl" id="trocar" title="Trocar personagem"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M17 8h4M19 6v4"/></svg></button>
     <button class="sair" id="sair">Encerrar</button>
     <span class="sep"></span>
@@ -194,6 +205,12 @@
     <button class="demo" id="demo-nota">Simular boa pergunta</button>
     <button class="demo" id="demo-fechar">Simular contrato fechado</button>
   </footer>
+</div>
+
+<div class="galeria cenarios" id="galeria-cenarios">
+  <h2>Escolha o cenário</h2>
+  <p class="sub">O ambiente de onde o cliente está falando. No automático, combina com o negócio dele.</p>
+  <div class="cartoes" id="lista-cenarios"></div>
 </div>
 
 <div class="galeria" id="galeria">
@@ -234,6 +251,7 @@
 <script>
   const $ = (id) => document.getElementById(id);
   $("inicial").textContent = PERFIL.inicial;
+  window.SALA = { personagem: () => atual };
   // Profundidade 3D: segue o mouse no palco; parado, balança devagar sozinho.
   (function () {
     const palco = $("palco"), cliente = $("cliente");
@@ -262,7 +280,8 @@
 
   function escolher(p) {
     atual = p;
-    $("cliente").innerHTML = desenharPersonagem(p);
+    if (window.cena3d) window.cena3d.trocarPersonagem(p); else $("cliente").innerHTML = desenharPersonagem(p);
+    window.aoTrocarPersonagem?.(p);
     $("etiqueta").innerHTML = `${p.nome} <small>· ${p.nicho}</small>`;
     $("sub").textContent = `${p.nome}, ${p.idade} anos · ${p.nicho} · perfil ${p.perfil} · voz ${p.voz}`;
     $("aba-transcricao").innerHTML = "";
@@ -299,6 +318,7 @@
   function clienteFala(texto) {
     const palco = $("palco");
     palco.classList.add("falando");
+    window.cena3d?.falar(Math.max(2500, texto.length * 55));
     $("legenda").textContent = texto;
     $("legenda").classList.toggle("on", legendas);
     transcrever(atual.nome, texto);
@@ -445,6 +465,54 @@
   montarGaleria("");
   escolher(atual);
   if (!params.get("p")) $("galeria").classList.add("on");
+</script>
+<script type="module">
+  import { criarCena, CENARIOS, CENARIO_POR_NICHO } from "./avatar3d.js";
+  const $ = (id) => document.getElementById(id);
+  const palco = $("palco"), cliente = $("cliente");
+  let escolhido = "auto";
+  try { escolhido = localStorage.getItem("closing:cenario") || "auto"; } catch {}
+  const cenarioDe = (p) => escolhido === "auto" ? (CENARIO_POR_NICHO[p.nicho] || "escritorio") : escolhido;
+
+  const aviso = document.createElement("div");
+  aviso.className = "carregando"; aviso.textContent = "Carregando 3D…"; palco.append(aviso);
+  try {
+    const p = window.SALA.personagem();
+    cliente.innerHTML = "";
+    window.cena3d = criarCena(cliente, p, cenarioDe(p));
+    palco.classList.add("modo-3d");
+    window.aoTrocarPersonagem = (np) => { if (escolhido === "auto") window.cena3d.trocarCenario(cenarioDe(np)); };
+    palco.addEventListener("mousemove", (e) => {
+      const r = palco.getBoundingClientRect();
+      window.cena3d.olhar(((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1);
+    });
+    palco.addEventListener("mouseleave", () => window.cena3d.olhar(0, 0));
+  } catch (erro) {
+    console.warn("3D indisponível, usando o desenho 2D.", erro);
+    cliente.innerHTML = desenharPersonagem(window.SALA.personagem());
+  }
+  aviso.remove();
+
+  function montarLista() {
+    const atual = window.SALA.personagem();
+    const opcoes = [["auto", { nome: `Automático (${CENARIOS[cenarioDe({ nicho: atual.nicho, ...atual })]?.nome || "pelo nicho"})`, emoji: "✨", parede: "#1fd57a" }], ...Object.entries(CENARIOS)];
+    $("lista-cenarios").innerHTML = "";
+    opcoes.forEach(([id, c]) => {
+      const b = document.createElement("button");
+      b.className = "cartao";
+      b.innerHTML = `<div class="amostra" style="background:linear-gradient(160deg, ${c.parede}, #0c1510)">${c.emoji}</div><div><b></b><small>${id === escolhido ? "Selecionado" : "&nbsp;"}</small></div>`;
+      b.querySelector("b").textContent = c.nome;
+      b.onclick = () => {
+        escolhido = id;
+        try { localStorage.setItem("closing:cenario", id); } catch {}
+        window.cena3d?.trocarCenario(cenarioDe(window.SALA.personagem()));
+        $("galeria-cenarios").classList.remove("on");
+      };
+      $("lista-cenarios").append(b);
+    });
+  }
+  $("btn-cenario").onclick = () => { montarLista(); $("galeria-cenarios").classList.add("on"); };
+  $("galeria-cenarios").onclick = (e) => { if (e.target.id === "galeria-cenarios") $("galeria-cenarios").classList.remove("on"); };
 </script>
 </body>
 </html>
