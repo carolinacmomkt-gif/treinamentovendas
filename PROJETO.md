@@ -125,6 +125,12 @@ Protótipo navegável em `prototipo/sala.html`.
 - **Versão gratuita (atual):** `prototipo/boca.js` acha os lábios e o queixo de cada retrato com o MediaPipe (gratuito, roda no navegador). A voz é a voz aprovada do ElevenLabs, pedida ao servidor local `servidor.py` (rota `/api/voz`, chave só no `.env`, falas repetidas ficam em cache e não gastam crédito), e a boca abre conforme o volume real do áudio. Sem chave, cai para a voz do navegador. Para rodar: `python servidor.py` na pasta do projeto.
 - Versão paga (futura), para a boca e o rosto seguirem a voz com perfeição: serviço de avatar falante usando esses retratos. **Escolhido: Runway Characters**, ligado ao ElevenLabs Agents. Teste em [conteudo/avatar-falante.md](conteudo/avatar-falante.md), plano em [conteudo/integracao-runway.md](conteudo/integracao-runway.md).
 
+### Conversa grátis (Gemini)
+- O cérebro do cliente é o Gemini no plano grátis do Google AI Studio, pela rota `/api/cliente` do `servidor.py` (chave `GEMINI_API_KEY` só no `.env`).
+- O cliente recebe o perfil do personagem, o modo, a dificuldade, o banco de objeções e um estado oculto sorteado (dor real, orçamento, quem decide, objeção verdadeira). Responde em 1 a 3 frases faladas e marca [FECHOU], [MARCOU] ou [ENCERROU] quando chega a um desfecho.
+- Na sala (`prototipo/conversa.js`): o botão do microfone liga a conversa; o navegador transcreve sua fala (grátis), espera um silêncio curto, manda ao Gemini e o retrato fala a resposta.
+- O placar ao vivo usa regras: perguntas abertas, preço antes da dor, desconto sem contrapartida, promessa de resultado, fala longa, palavras de insegurança, vícios, ritmo e proporção de fala.
+
 ### Personagens e cenários em 3D (reserva)
 - Os personagens são montados em 3D no navegador (Three.js, `prototipo/avatar3d.js`) a partir das características de cada um. Não há modelos de terceiros, então não há licença a pagar.
 - Eles respiram, piscam, olham em volta, mexem a cabeça, levantam a sobrancelha e abrem a boca ao falar. A câmera acompanha o mouse para dar profundidade. Na v1, a boca vai seguir o volume da voz do ElevenLabs (`cena.volume()`).

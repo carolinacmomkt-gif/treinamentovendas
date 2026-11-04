@@ -71,6 +71,9 @@
   .cartao .retrato { aspect-ratio: 1; height: auto; }
   .resumo .foto .retrato { width: 100%; height: 100%; }
   .ctl[hidden] { display: none; }
+  .ctl.escutando { background: var(--verde); color: #04140b; box-shadow: 0 0 0 6px rgba(34,224,127,.2); }
+  .ctl.pensando { background: #2a3b31; animation: pulsar-mic 1s infinite; }
+  @keyframes pulsar-mic { 50% { opacity: .55; } }
   .palco .carregando { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.55); padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--suave); }
   .cenarios .cartao { padding: 0; }
   .cenarios .amostra { height: 90px; display: grid; place-items: center; font-size: 34px; }
@@ -299,6 +302,7 @@
     } else if (window.cena3d) window.cena3d.trocarPersonagem(p);
     else { palcoEl.classList.remove("modo-foto"); $("cliente").innerHTML = desenharPersonagem(p); }
     window.aoTrocarPersonagem?.(p);
+    window.reiniciarConversa?.();
     $("etiqueta").innerHTML = `${p.nome} <small>· ${p.nicho}</small>`;
     $("sub").textContent = `${p.nome}, ${p.idade} anos · ${p.nicho} · perfil ${p.perfil} · voz ${p.voz}`;
     $("aba-transcricao").innerHTML = "";
@@ -352,8 +356,8 @@
     transcrever(atual.nome, texto);
     clearTimeout(clienteFala.t);
     const terminar = () => { palco.classList.remove("falando"); $("legenda").classList.remove("on"); };
-    if (retratoVivo) retratoVivo.falar(texto).then(terminar);
-    else clienteFala.t = setTimeout(terminar, Math.max(2500, texto.length * 55));
+    if (retratoVivo) return retratoVivo.falar(texto).then(terminar);
+    return new Promise((ok) => { clienteFala.t = setTimeout(() => { terminar(); ok(); }, Math.max(2500, texto.length * 55)); });
   }
 
   // Caixa registradora sintetizada: gaveta, dois sinos e moedas.
@@ -419,7 +423,6 @@
   // Controles
   let legendas = true, camera = null;
   $("cc").onclick = () => { legendas = !legendas; $("cc").classList.toggle("off", !legendas); };
-  $("mic").onclick = () => $("mic").classList.toggle("off");
   $("cam").onclick = async () => {
     if (camera) { camera.getTracks().forEach((t) => t.stop()); camera = null; $("voce").innerHTML = `<div class="inicial">${PERFIL.inicial}</div><span class="nome">Você</span>`; return; }
     try {
@@ -497,6 +500,7 @@
   escolher(atual);
   if (!params.get("p")) $("galeria").classList.add("on");
 </script>
+<script src="conversa.js"></script>
 <script type="module" src="boca.js"></script>
 <script type="module">
   import { criarCena, CENARIOS, CENARIO_POR_NICHO } from "./avatar3d.js";
