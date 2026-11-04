@@ -4,7 +4,7 @@
     {
       "name": "prototipo",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5173", "--bind", "127.0.0.1"],
+      "runtimeArgs": ["servidor.py"],
       "port": 5173
     }
   ]

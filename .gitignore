@@ -8,3 +8,5 @@ ferramentas/vozes/amostras/
 _backup/
 .DS_Store
 Thumbs.db
+.cache-voz/
+__pycache__/
