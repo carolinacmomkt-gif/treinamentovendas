@@ -1,37 +1,41 @@
 """Servidor local do protótipo do Closing.
 
-Serve os arquivos do projeto e tem duas rotas:
-- /api/voz: fala o texto com a voz aprovada do ElevenLabs.
-- /api/cliente: o Gemini (plano grátis) responde no papel do cliente.
-As chaves ficam só no arquivo .env deste computador.
+Serve os arquivos do projeto e tem duas rotas, ambas com o Gemini:
+- /api/cliente: o Gemini responde no papel do cliente.
+- /api/voz: o Gemini fala a resposta com a voz do personagem.
+A chave fica só no arquivo .env deste computador.
 
 Uso, na pasta do projeto:  python servidor.py   (abre em http://127.0.0.1:5173)
 """
+import base64
 import hashlib
+import io
 import json
 import os
 import urllib.error
 import urllib.parse
 import urllib.request
+import wave
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent
 CACHE = RAIZ / ".cache-voz"
-API = "https://api.elevenlabs.io/v1"
-MODELO = "eleven_flash_v2_5"  # metade dos créditos do modelo padrão e resposta mais rápida
+GEMINI = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
+MODELOS_GEMINI = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash"]
+MODELOS_VOZ = ["gemini-2.5-flash-preview-tts", "gemini-2.5-flash-tts"]
 
-# Nome de cada voz aprovada como aparece na biblioteca do ElevenLabs.
+# Cada voz do projeto vira uma voz do Gemini com perfil parecido, mais um jeito de falar.
 VOZES = {
-    "Paulo": "Paulo - Natural Brazilian Voice",
-    "Yuri": "Yuri - Natural Brazilian",
-    "Witalo": "Witalo - Young Male",
-    "Marcia": "Marcia - Portuguese",
-    "Raquel": "Raquel - Expressive and Energetic",
+    "Paulo": ("Charon", "com voz madura, calma e formal"),
+    "Yuri": ("Orus", "com voz firme, direta e um pouco impaciente"),
+    "Witalo": ("Puck", "com voz jovem, rápida e animada"),
+    "Marcia": ("Leda", "com voz jovem, simpática e animada"),
+    "Raquel": ("Kore", "com voz firme, educada e cuidadosa"),
 }
 
 
-def ler_chave(nome="ELEVENLABS_API_KEY"):
+def ler_chave(nome="GEMINI_API_KEY"):
     env = RAIZ / ".env"
     if env.exists():
         for linha in env.read_text(encoding="utf-8").splitlines():
@@ -40,45 +44,23 @@ def ler_chave(nome="ELEVENLABS_API_KEY"):
     return os.environ.get(nome, "")
 
 
-def chamar(caminho, chave, metodo="GET", corpo=None):
-    req = urllib.request.Request(
-        API + caminho,
-        method=metodo,
-        data=json.dumps(corpo).encode() if corpo is not None else None,
-        headers={"xi-api-key": chave, "Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return resp.read()
+def chamar_gemini(modelos, corpo, chave, timeout=40):
+    """Tenta os modelos em ordem; pula os que não existem mais (404)."""
+    ultimo_erro = None
+    for modelo in modelos:
+        req = urllib.request.Request(GEMINI.format(modelo), data=json.dumps(corpo(modelo)).encode(),
+                                     headers={"x-goog-api-key": chave, "Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            ultimo_erro = e
+            if e.code != 404:
+                raise
+    raise ultimo_erro
 
 
-def id_da_voz(apelido, chave):
-    """Acha o id da voz: primeiro em 'Minhas vozes', senão na biblioteca pública (e adiciona)."""
-    CACHE.mkdir(exist_ok=True)
-    arquivo = CACHE / "ids.json"
-    ids = json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else {}
-    if apelido in ids:
-        return ids[apelido]
-    nome = VOZES[apelido]
-    minhas = json.loads(chamar("/voices", chave)).get("voices", [])
-    achada = next((v for v in minhas if v["name"].lower().startswith(nome.split(" - ")[0].lower())), None)
-    if achada:
-        voz_id = achada["voice_id"]
-    else:
-        busca = urllib.parse.urlencode({"search": nome, "page_size": 10})
-        publicas = json.loads(chamar(f"/shared-voices?{busca}", chave)).get("voices", [])
-        v = next((p for p in publicas if p["name"].lower() == nome.lower()), publicas[0] if publicas else None)
-        if not v:
-            raise RuntimeError(f"Voz não encontrada no ElevenLabs: {nome}")
-        chamar(f"/voices/add/{v['public_owner_id']}/{v['voice_id']}", chave, "POST", {"new_name": nome})
-        voz_id = v["voice_id"]
-    ids[apelido] = voz_id
-    arquivo.write_text(json.dumps(ids, indent=2), encoding="utf-8")
-    return voz_id
-
-
-# ---------- cliente (Gemini) ----------
-GEMINI = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
-MODELOS_GEMINI = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash"]
+# ---------- cliente ----------
 DIFICULDADE = {
     "facil": "Você é receptivo. Revela a dor real logo e tem 1 ou 2 objeções simples.",
     "medio": "Você começa com uma objeção falsa (cortina). Só revela a objeção verdadeira se o vendedor isolar a objeção com uma boa pergunta.",
@@ -119,7 +101,7 @@ Banco de objeções (referência):
 
 
 def responder_cliente(pedido):
-    chave = ler_chave("GEMINI_API_KEY")
+    chave = ler_chave()
     if not chave:
         raise PermissionError("Falta GEMINI_API_KEY no arquivo .env")
     conteudo = []
@@ -131,28 +113,50 @@ def responder_cliente(pedido):
             conteudo.append({"role": papel, "parts": [{"text": fala["texto"]}]})
     if not conteudo or conteudo[0]["role"] != "user":
         conteudo.insert(0, {"role": "user", "parts": [{"text": "(O vendedor entrou na reunião.)"}]})
-    corpo = {
-        "systemInstruction": {"parts": [{"text": instrucoes_cliente(pedido)}]},
-        "contents": conteudo,
-        "generationConfig": {"temperature": 0.9, "maxOutputTokens": 220, "thinkingConfig": {"thinkingBudget": 0}},
-    }
-    ultimo_erro = None
-    for modelo in [ler_chave("GEMINI_MODEL") or MODELOS_GEMINI[0]] + MODELOS_GEMINI:
-        corpo_modelo = dict(corpo)
-        if not modelo.startswith("gemini-2.5") and modelo != "gemini-flash-latest":
-            corpo_modelo["generationConfig"] = {k: v for k, v in corpo["generationConfig"].items() if k != "thinkingConfig"}
-        req = urllib.request.Request(GEMINI.format(modelo), data=json.dumps(corpo_modelo).encode(),
-                                     headers={"x-goog-api-key": chave, "Content-Type": "application/json"})
-        try:
-            with urllib.request.urlopen(req, timeout=40) as resp:
-                dados = json.loads(resp.read())
-            partes = dados["candidates"][0]["content"]["parts"]
-            return " ".join(x.get("text", "") for x in partes).strip()
-        except urllib.error.HTTPError as e:
-            ultimo_erro = e
-            if e.code != 404:
-                raise
-    raise ultimo_erro
+
+    def corpo(modelo):
+        config = {"temperature": 0.9, "maxOutputTokens": 220}
+        if modelo.startswith("gemini-2.5") or modelo == "gemini-flash-latest":
+            config["thinkingConfig"] = {"thinkingBudget": 0}  # resposta rápida, sem "pensar" antes
+        return {"systemInstruction": {"parts": [{"text": instrucoes_cliente(pedido)}]}, "contents": conteudo, "generationConfig": config}
+
+    modelos = [ler_chave("GEMINI_MODEL") or MODELOS_GEMINI[0]] + MODELOS_GEMINI
+    dados = chamar_gemini(modelos, corpo, chave)
+    partes = dados["candidates"][0]["content"]["parts"]
+    return " ".join(x.get("text", "") for x in partes).strip()
+
+
+# ---------- voz ----------
+def falar(texto, apelido):
+    """Gera a fala com a voz do Gemini e devolve um WAV. Falas repetidas vêm do cache."""
+    chave = ler_chave()
+    if not chave:
+        raise PermissionError("Falta GEMINI_API_KEY no arquivo .env")
+    voz, jeito = VOZES[apelido]
+    arquivo = CACHE / (hashlib.sha1(f"{voz}|{jeito}|{texto}".encode()).hexdigest() + ".wav")
+    if arquivo.exists():
+        return arquivo.read_bytes()
+
+    def corpo(_modelo):
+        return {
+            "contents": [{"parts": [{"text": f"Fale em português do Brasil, {jeito}, como numa conversa natural: {texto}"}]}],
+            "generationConfig": {"responseModalities": ["AUDIO"],
+                                 "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voz}}}},
+        }
+
+    dados = chamar_gemini(MODELOS_VOZ, corpo, chave, timeout=60)
+    parte = dados["candidates"][0]["content"]["parts"][0]["inlineData"]
+    pcm = base64.b64decode(parte["data"])
+    taxa = int((parte.get("mimeType", "").split("rate=") + ["24000"])[1].split(";")[0] or 24000)
+    saida = io.BytesIO()
+    with wave.open(saida, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(taxa)
+        w.writeframes(pcm)
+    CACHE.mkdir(exist_ok=True)
+    arquivo.write_bytes(saida.getvalue())
+    return saida.getvalue()
 
 
 class Manipulador(SimpleHTTPRequestHandler):
@@ -175,41 +179,23 @@ class Manipulador(SimpleHTTPRequestHandler):
         self.wfile.write(corpo)
 
     def do_POST(self):
-        if self.path == "/api/cliente":
-            try:
-                pedido = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
-                return self.responder_json(200, {"texto": responder_cliente(pedido)})
-            except PermissionError as e:
-                return self.responder_json(503, {"erro": str(e)})
-            except urllib.error.HTTPError as e:
-                return self.responder_json(e.code, {"erro": e.read().decode("utf-8", "replace")[:400]})
-            except Exception as e:  # noqa: BLE001
-                return self.responder_json(500, {"erro": str(e)[:400]})
-        if self.path != "/api/voz":
+        if self.path not in ("/api/cliente", "/api/voz"):
             return self.responder_json(404, {"erro": "rota não existe"})
-        chave = ler_chave()
-        if not chave:
-            return self.responder_json(503, {"erro": "Falta ELEVENLABS_API_KEY no arquivo .env"})
         try:
             pedido = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
-            texto, apelido = pedido["texto"].strip(), pedido["voz"]
+            if self.path == "/api/cliente":
+                return self.responder_json(200, {"texto": responder_cliente(pedido)})
+            texto, apelido = pedido.get("texto", "").strip(), pedido.get("voz")
             if apelido not in VOZES or not texto:
                 return self.responder_json(400, {"erro": "voz ou texto inválido"})
-            # Mesma fala com a mesma voz não gasta crédito de novo.
-            nome_cache = hashlib.sha1(f"{apelido}|{MODELO}|{texto}".encode()).hexdigest() + ".mp3"
-            arquivo = CACHE / nome_cache
-            if not arquivo.exists():
-                voz_id = id_da_voz(apelido, chave)
-                audio = chamar(f"/text-to-speech/{voz_id}?output_format=mp3_44100_128", chave, "POST",
-                               {"text": texto, "model_id": MODELO})
-                CACHE.mkdir(exist_ok=True)
-                arquivo.write_bytes(audio)
-            dados = arquivo.read_bytes()
+            audio = falar(texto, apelido)
             self.send_response(200)
-            self.send_header("Content-Type", "audio/mpeg")
-            self.send_header("Content-Length", str(len(dados)))
+            self.send_header("Content-Type", "audio/wav")
+            self.send_header("Content-Length", str(len(audio)))
             self.end_headers()
-            self.wfile.write(dados)
+            self.wfile.write(audio)
+        except PermissionError as e:
+            self.responder_json(503, {"erro": str(e)})
         except urllib.error.HTTPError as e:
             self.responder_json(e.code, {"erro": e.read().decode("utf-8", "replace")[:400]})
         except Exception as e:  # noqa: BLE001 - o navegador só precisa saber que falhou

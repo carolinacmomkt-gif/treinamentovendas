@@ -68,10 +68,20 @@ Personagens prontos, **masculinos e femininos**, cada um com nome, idade, foto i
 
 Os desenhos de cada personagem estão em `prototipo/personagens.js` (ilustrações próprias em SVG que piscam e mexem a boca quando falam).
 
-### Vozes escolhidas (teste de 04/11/2026)
-Testadas no ElevenLabs com a mesma fala de cliente desconfiado. Aprovadas:
+### Vozes (Gemini)
+Desde 04/11/2026 as vozes vêm do próprio Gemini (decisão do Gustavo de usar só o Gemini, sem ElevenLabs). Cada voz do projeto virou uma voz do Gemini com perfil parecido, definida em `servidor.py`:
 
-| Voz ElevenLabs | Gênero | Uso sugerido |
+| Voz do projeto | Voz do Gemini | Jeito de falar |
+|---|---|---|
+| Paulo | Charon | madura, calma e formal |
+| Yuri | Orus | firme, direta, um pouco impaciente |
+| Witalo | Puck | jovem, rápida e animada |
+| Marcia | Leda | jovem, simpática e animada |
+| Raquel | Kore | firme, educada e cuidadosa |
+
+Histórico: antes, as vozes tinham sido escolhidas no ElevenLabs. A distribuição por personagem continua a mesma:
+
+| Voz | Gênero | Uso sugerido |
 |---|---|---|
 | **Paulo** (Natural Brazilian Voice) | Masculina | Dr. Ricardo, Dr. Paulo (mais formais e maduros) |
 | **Yuri** (Natural Brazilian, tom de conversa) | Masculina | Marcos, Roberto (donos de empresa, mais diretos) |
@@ -122,8 +132,8 @@ Protótipo navegável em `prototipo/sala.html`.
 ### Retratos dos personagens (estilo animação de cinema)
 - Os 9 personagens têm retratos gerados no Google Flow (modelo Nano Banana 2.1), em `prototipo/personagens/` (versões `-a` e `-b` de cada um). Cada retrato já traz o cenário do negócio ao fundo.
 - Na sala, o retrato ocupa o palco como um vídeo, com respiração, leve movimento com o mouse e borda verde quando o cliente fala. Na galeria, na página inicial e no histórico aparecem como miniaturas.
-- **Versão gratuita (atual):** `prototipo/boca.js` acha os lábios e o queixo de cada retrato com o MediaPipe (gratuito, roda no navegador). A voz é a voz aprovada do ElevenLabs, pedida ao servidor local `servidor.py` (rota `/api/voz`, chave só no `.env`, falas repetidas ficam em cache e não gastam crédito), e a boca abre conforme o volume real do áudio. Sem chave, cai para a voz do navegador. Para rodar: `python servidor.py` na pasta do projeto.
-- Versão paga (futura), para a boca e o rosto seguirem a voz com perfeição: serviço de avatar falante usando esses retratos. **Escolhido: Runway Characters**, ligado ao ElevenLabs Agents. Teste em [conteudo/avatar-falante.md](conteudo/avatar-falante.md), plano em [conteudo/integracao-runway.md](conteudo/integracao-runway.md).
+- **Versão gratuita (atual):** `prototipo/boca.js` acha os lábios e o queixo de cada retrato com o MediaPipe (gratuito, roda no navegador). A voz vem do Gemini, pedida ao servidor local `servidor.py` (rota `/api/voz`, chave só no `.env`, falas repetidas ficam em cache), e a boca abre conforme o volume real do áudio. Sem chave, cai para a voz do navegador. Para rodar: `python servidor.py` na pasta do projeto.
+- Versão paga (futura), para a boca e o rosto seguirem a voz com perfeição: serviço de avatar falante usando esses retratos. Avaliado: Runway Characters (fica para quando houver orçamento). Teste em [conteudo/avatar-falante.md](conteudo/avatar-falante.md), plano em [conteudo/integracao-runway.md](conteudo/integracao-runway.md).
 
 ### Conversa grátis (Gemini)
 - O cérebro do cliente é o Gemini no plano grátis do Google AI Studio, pela rota `/api/cliente` do `servidor.py` (chave `GEMINI_API_KEY` só no `.env`).
@@ -133,7 +143,7 @@ Protótipo navegável em `prototipo/sala.html`.
 
 ### Personagens e cenários em 3D (reserva)
 - Os personagens são montados em 3D no navegador (Three.js, `prototipo/avatar3d.js`) a partir das características de cada um. Não há modelos de terceiros, então não há licença a pagar.
-- Eles respiram, piscam, olham em volta, mexem a cabeça, levantam a sobrancelha e abrem a boca ao falar. A câmera acompanha o mouse para dar profundidade. Na v1, a boca vai seguir o volume da voz do ElevenLabs (`cena.volume()`).
+- Eles respiram, piscam, olham em volta, mexem a cabeça, levantam a sobrancelha e abrem a boca ao falar. A câmera acompanha o mouse para dar profundidade. A boca pode seguir o volume da voz (`cena.volume()`).
 - 10 cenários 3D: escritório, consultório, clínica odontológica, escritório de advocacia, imobiliária (vista da cidade), galpão (painel solar e estoque), academia (neon verde), marcenaria, loja de celulares e home office. No automático, o cenário combina com o nicho do cliente; o botão de cenário na barra da sala troca na hora.
 - Se o navegador não suportar 3D, a sala volta para o desenho 2D.
 
@@ -287,18 +297,18 @@ Ao encerrar uma reunião na sala, ela entra no histórico e o painel se atualiza
 ```
 Navegador (site no Netlify)
  ├─ Tela de configuração  →  monta o personagem (ficha do nicho + escolhas)
- ├─ Reunião por voz  ←→  ElevenLabs Agents (fala ↔ texto, voz, turnos, interrupção)
- │                          └─ cérebro do cliente: Claude (prompt do personagem)
- ├─ Rosto do cliente  ←WebRTC←  Runway Characters (boca e rosto do retrato seguem o áudio do ElevenLabs)
- ├─ A cada fala sua  →  Netlify Function "avaliar-turno"  →  Claude Haiku (rápido e barato)  →  placar
+ ├─ Sua fala  →  reconhecimento de voz do navegador (grátis)
+ ├─ Cérebro do cliente  →  Function "cliente"  →  Gemini (perfil, objeções, estado oculto)
+ ├─ Voz do cliente  →  Function "voz"  →  Gemini TTS  →  retrato com a boca animada (MediaPipe, grátis)
+ ├─ A cada fala sua  →  regras de placar no navegador (grátis)
  ├─ Métricas de comunicação (ritmo, vícios, palavras)  →  calculadas no navegador a partir da transcrição e do tempo de cada fala
  ├─ Conquistas e XP  →  regras fixas aplicadas ao resultado de cada treino
- └─ Ao encerrar  →  Netlify Background Function "relatorio"  →  Claude Opus (transcrição completa)  →  relatório
+ └─ Ao encerrar  →  Function "relatorio"  →  Gemini (transcrição completa)  →  relatório
 ```
 
-**Por que o ElevenLabs Agents (e não montar peça por peça):** ele já resolve reconhecimento de fala, voz, detecção de quem está falando e interrupção, com baixa latência. É o que deixa a conversa com cara de real. Montar isso na mão com MiniMax (só voz) exigiria juntar reconhecimento de fala + IA + voz e cuidar da latência, e a conversa ficaria mais robótica. O MiniMax fica como alternativa mais barata para vozes, se o custo por minuto pesar quando abrir para outros gestores.
+**Por que só o Gemini:** um único serviço cuida da conversa e da voz, com plano gratuito suficiente para treinar todo dia. No protótipo, as rotas rodam no `servidor.py` local; na publicação, viram Netlify Functions.
 
-**Chaves de API** (ElevenLabs, Anthropic) ficam só nas Netlify Functions, nunca no navegador.
+**Chave de API** (Gemini) fica só no `.env` local ou nas variáveis do Netlify, nunca no navegador nem no GitHub.
 
 **Atenção ao limite do Netlify:** funções comuns têm tempo curto; o relatório final roda em background function e a tela espera o resultado.
 
@@ -307,7 +317,7 @@ Navegador (site no Netlify)
 - **v2 (vender):** Supabase para login, histórico por usuário e limite de minutos por plano; pagamento por assinatura (Stripe ou Hubla).
 
 ### Custo a acompanhar
-O custo principal é por **minuto de voz** (ElevenLabs) + avaliação (Claude). Antes de definir o preço para outros gestores, medir quanto custa uma reunião de 20 minutos na v1.
+No plano gratuito do Gemini o custo é zero, dentro do limite diário. Se passar a usar o plano pago da API, o custo é por uso de texto e de voz. Antes de definir o preço para outros gestores, medir quanto custa uma reunião de 20 minutos na v1.
 
 ## 12. Versões
 
@@ -318,7 +328,7 @@ O custo principal é por **minuto de voz** (ElevenLabs) + avaliação (Claude). 
 - Sala no estilo videochamada + som de caixa registradora ao fechar
 - Banco de objeções por categoria e por nicho
 - Configuração do cliente + estado oculto
-- Reunião por voz ao vivo (ElevenLabs Agents)
+- Reunião por voz ao vivo (Gemini: conversa e voz)
 - Placar ao vivo + painel de comunicação
 - Avaliação de dicção (ritmo, vícios, fluidez) e vocabulário
 - Módulo de Oratória com exercícios curtos, ritual pré-reunião e escada de exposição
@@ -339,8 +349,7 @@ O custo principal é por **minuto de voz** (ElevenLabs) + avaliação (Claude). 
 
 ## 13. O que preciso antes de construir
 
-- [ ] Conta no ElevenLabs com acesso a Agents e uma chave de API
-- [ ] Chave de API da Anthropic (Claude)
+- [x] Chave de API do Gemini (Google AI Studio, plano gratuito)
 - [ ] Conta no Netlify (e, se quiser, um repositório no GitHub ligado a ela)
 - [ ] Sua oferta padrão: serviços, preço, formato de contrato, diferenciais
 - [ ] 2 ou 3 cases reais para a IA saber o que você pode citar (e para cobrar se você não citar)

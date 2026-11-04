@@ -1,6 +1,6 @@
 // Boca falando nos retratos, de graça e no próprio navegador.
 // 1) O MediaPipe acha os lábios e o queixo no retrato (uma vez por imagem, fica guardado).
-// 2) A voz é a voz aprovada do ElevenLabs, pedida ao servidor local (/api/voz).
+// 2) A voz vem do Gemini, pedida ao servidor local (/api/voz).
 // 3) A boca abre conforme o volume real do áudio: os lábios se separam e o queixo desce
 //    um pouco, com as bordas esfumadas para não parecer recorte.
 // Sem servidor ou sem chave, cai para a voz do navegador com um ritmo aproximado.
@@ -11,7 +11,7 @@ const LABIO_SUPERIOR_INTERNO = [78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308
 const LABIO_INFERIOR_INTERNO = [308, 324, 318, 402, 317, 14, 87, 178, 88, 95, 78];
 const CONTORNO_QUEIXO = [397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172];
 
-// Jeito de falar na voz do navegador (só quando o ElevenLabs não está disponível).
+// Jeito de falar na voz do navegador (só quando a voz do Gemini não está disponível).
 const ESTILO_VOZ = {
   Paulo: { genero: "M", tom: 0.82, ritmo: 0.95 },
   Yuri: { genero: "M", tom: 0.95, ritmo: 1.05 },
@@ -161,7 +161,7 @@ export async function montar(container, personagem) {
   }
   desenhar();
 
-  async function falarElevenLabs(texto) {
+  async function falarComGemini(texto) {
     const resp = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto, voz: personagem.voz }) });
     if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).erro || `voz indisponível (${resp.status})`);
     const url = URL.createObjectURL(await resp.blob());
@@ -198,10 +198,10 @@ export async function montar(container, personagem) {
 
   const retrato = {
     fonte: null,
-    // Fala com a voz aprovada do ElevenLabs; se não der, usa a voz do navegador.
+    // Fala com a voz do Gemini; se não der, usa a voz do navegador.
     async falar(texto) {
       audioPronto();
-      try { await falarElevenLabs(texto); retrato.fonte = "elevenlabs"; }
+      try { await falarComGemini(texto); retrato.fonte = "gemini"; }
       catch (e) { console.warn("Usando a voz do navegador:", e.message); retrato.fonte = "navegador"; retrato.motivo = e.message; await falarNavegador(texto); }
     },
     calar() { audioAtual?.pause(); speechSynthesis?.cancel(); ritmoAte = 0; fonteVolume = null; },
