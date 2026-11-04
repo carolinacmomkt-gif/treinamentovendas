@@ -125,3 +125,22 @@ a { color: inherit; text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Personagens: respiram, mexem a cabeça, piscam, olham em volta e falam. */
+.personagem .p-camada { transform: translate(calc(var(--px, 0) * var(--d) * 1.6px), calc(var(--py, 0) * var(--d) * 1.1px)); transition: transform .3s ease-out; }
+.personagem .p-respira { transform-box: view-box; transform-origin: 100px 200px; animation: respirar 4.6s ease-in-out infinite; }
+.personagem .p-cabeca { transform-box: view-box; transform-origin: 100px 140px; animation: cabeca 7.5s ease-in-out infinite; }
+.personagem .p-olhos { transform-box: fill-box; transform-origin: center; animation: piscar 5s infinite; }
+.personagem .p-pupila { animation: olhar 9s ease-in-out infinite; }
+.personagem .boca-aberta { transform-box: fill-box; transform-origin: 50% 20%; opacity: 0; }
+.falando .personagem .boca-fechada { opacity: 0; }
+.falando .personagem .boca-aberta { opacity: 1; animation: falar .17s infinite alternate ease-in-out; }
+.falando .personagem .p-cabeca { animation: cabeca-fala 1.7s ease-in-out infinite; }
+.falando .personagem .p-sobrancelhas { animation: sobrancelha 1.3s ease-in-out infinite; }
+@keyframes respirar { 50% { transform: scale(1.012, 1.022); } }
+@keyframes cabeca { 0%, 100% { transform: rotate(0) translateY(0); } 25% { transform: rotate(1.8deg) translateY(-.6px); } 60% { transform: rotate(-1.3deg) translateY(.5px); } }
+@keyframes cabeca-fala { 0%, 100% { transform: rotate(-.8deg) translateY(0); } 30% { transform: rotate(1.4deg) translateY(-1.4px); } 65% { transform: rotate(-1.6deg) translateY(.8px); } }
+@keyframes piscar { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+@keyframes olhar { 0%, 30% { transform: translate(0, 0); } 36%, 55% { transform: translate(1.6px, 0); } 61%, 76% { transform: translate(-1.5px, .4px); } 82%, 100% { transform: translate(0, 0); } }
+@keyframes sobrancelha { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-1.8px); } }
+@keyframes falar { from { transform: scaleY(.2); } to { transform: scaleY(1.05); } }
