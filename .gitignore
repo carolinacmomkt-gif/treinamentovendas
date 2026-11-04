@@ -4,5 +4,6 @@ dist/
 .env.*
 !.env.example
 .netlify/
+ferramentas/vozes/amostras/
 .DS_Store
 Thumbs.db
