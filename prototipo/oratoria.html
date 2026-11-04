@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oratória · Treino de Vendas</title>
+<title>Oratória · Closing</title>
+<link rel="icon" href="marca/icone.svg" type="image/svg+xml">
 <link rel="stylesheet" href="estilo.css">
 <style>
   main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 70px; }
@@ -20,7 +21,7 @@
 
   /* Ritual */
   .ritual { display: flex; gap: 20px; align-items: center; }
-  .respiro { flex: 0 0 auto; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, rgba(124,92,255,.5), rgba(57,135,229,.15)); transition: transform 4s ease-in-out; font-weight: 700; text-align: center; font-size: 13px; padding: 10px; }
+  .respiro { flex: 0 0 auto; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, rgba(31,213,122,.5), rgba(15,159,82,.15)); transition: transform 4s ease-in-out; font-weight: 700; text-align: center; font-size: 13px; padding: 10px; }
   .respiro.inspira { transform: scale(1.25); }
   .respiro.solta { transform: scale(.85); transition-duration: 6s; }
   .ritual p { margin: 0 0 12px; color: var(--texto-2); font-size: 14px; }
@@ -32,13 +33,13 @@
   .escada { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .degrau { padding: 14px; border-radius: 12px; background: var(--superficie-2); border: 1px solid var(--borda); position: relative; }
   .degrau.feito { border-color: rgba(34,197,94,.45); background: linear-gradient(180deg, rgba(34,197,94,.1), transparent), var(--superficie-2); }
-  .degrau.atual { border-color: var(--marca); box-shadow: 0 0 0 3px rgba(124,92,255,.2); }
+  .degrau.atual { border-color: var(--marca); box-shadow: 0 0 0 3px rgba(31,213,122,.2); }
   .degrau .n { font-size: 12px; color: var(--texto-3); font-weight: 600; }
   .degrau b { display: block; margin: 2px 0 6px; font-size: 14px; }
   .degrau small { color: var(--texto-2); font-size: 12px; display: block; }
   .degrau .prog { height: 6px; border-radius: 3px; background: var(--superficie-3); margin-top: 10px; overflow: hidden; }
   .degrau .prog i { display: block; height: 100%; background: var(--bom); }
-  .degrau a { display: inline-block; margin-top: 8px; font-size: 12px; color: #c4b5fd; font-weight: 600; }
+  .degrau a { display: inline-block; margin-top: 8px; font-size: 12px; color: #86efac; font-weight: 600; }
 
   /* Exercícios */
   .exercicios { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
@@ -48,7 +49,7 @@
   .ex b { font-size: 16px; }
   .ex p { margin: 0; color: var(--texto-2); font-size: 13px; flex: 1; }
   .ex .rodape { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px; color: var(--texto-3); }
-  .ex .foco { padding: 2px 8px; border-radius: 999px; background: rgba(124,92,255,.15); color: #c4b5fd; font-weight: 600; }
+  .ex .foco { padding: 2px 8px; border-radius: 999px; background: rgba(31,213,122,.15); color: #86efac; font-weight: 600; }
   .ex .melhor { color: var(--ouro); font-weight: 600; }
 
   /* Conquistas e histórico */
@@ -76,7 +77,7 @@
   .instrucao { padding: 16px 18px; margin-bottom: 14px; }
   .instrucao ol { margin: 6px 0 0; padding-left: 20px; color: var(--texto-2); }
   .leitura { padding: 20px 22px; font-size: 20px; line-height: 1.6; margin-bottom: 14px; }
-  .leitura em { color: #c4b5fd; font-style: normal; font-weight: 700; }
+  .leitura em { color: #86efac; font-style: normal; font-weight: 700; }
   .painel { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
   .tom { padding: 16px; }
   .tom canvas { width: 100%; height: 170px; display: block; border-radius: 10px; background: var(--superficie-2); }
@@ -116,7 +117,7 @@
   .linhas-res { display: grid; gap: 8px; margin: 18px 0; }
   .linhas-res div { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--superficie-2); font-size: 14px; align-items: center; }
   .linhas-res small { color: var(--texto-3); }
-  .dica-res { padding: 14px 16px; border-radius: 12px; background: rgba(124,92,255,.12); border: 1px solid rgba(124,92,255,.3); }
+  .dica-res { padding: 14px 16px; border-radius: 12px; background: rgba(31,213,122,.12); border: 1px solid rgba(31,213,122,.3); }
   .dica-res b { display: block; margin-bottom: 4px; }
 
   @media (max-width: 900px) {
@@ -134,8 +135,8 @@
 <main>
   <div class="topo entrar">
     <div>
-      <a class="voltar" href="index.html">← Início</a>
-      <h1>🗣️ Oratória</h1>
+      <div style="display:flex;align-items:center;gap:14px"><span data-marca="logo" data-tamanho="28"></span><a class="voltar" href="index.html">← Início</a></div>
+      <h1>Oratória</h1>
       <p class="lead">Treinos curtos, um foco por vez: ritmo, pausas, tom, volume e confiança. Baseado em estudos científicos sobre fala persuasiva.</p>
     </div>
   </div>
@@ -149,8 +150,8 @@
         <div>
           <p>Escolha a frase que você vai dizer em voz alta no final:</p>
           <div class="linha-chips" id="frases">
-            <button class="chip on" data-f="Estou animada!">"Estou animada!"</button>
-            <button class="chip" data-f="Carol, você está pronta.">"Carol, você está pronta."</button>
+            <button class="chip on" data-f="Que empolgação, vamos lá!">"Que empolgação, vamos lá!"</button>
+            <button class="chip" id="frase-nome"></button>
           </div>
           <button class="botao-sec" id="iniciar-ritual">▶ Começar ritual</button>
         </div>
@@ -221,6 +222,7 @@
   </div>
 </div>
 
+<script src="marca.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
   const CHAVE = "treino-vendas:oratoria";
@@ -321,7 +323,10 @@
   }
 
   // ---------- Ritual ----------
-  let frase = "Estou animada!";
+  let frase = "Que empolgação, vamos lá!";
+  const fraseNome = $("frase-nome");
+  fraseNome.dataset.f = `${PERFIL.nome}, você consegue.`;
+  fraseNome.textContent = `"${fraseNome.dataset.f}"`;
   document.querySelectorAll("#frases .chip").forEach((c) => c.onclick = () => {
     document.querySelectorAll("#frases .chip").forEach((x) => x.classList.toggle("on", x === c));
     frase = c.dataset.f;
@@ -441,7 +446,7 @@
     ctx.strokeStyle = "rgba(255,255,255,.06)"; ctx.lineWidth = 1;
     [50, 100, 150].forEach((y) => { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(800, y); ctx.stroke(); });
     const base = mediana(estado.tons) || 180;
-    ctx.strokeStyle = "#3987e5"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = "#22e07f"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.beginPath();
     let aberto = false;
     t.forEach((f, i) => {

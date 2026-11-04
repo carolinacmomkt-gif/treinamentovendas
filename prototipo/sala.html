@@ -3,23 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sala de Treino</title>
+<title>Sala de reunião · Closing</title>
+<link rel="icon" href="marca/icone.svg" type="image/svg+xml">
 <link rel="stylesheet" href="estilo.css">
 <style>
   :root {
-    --fundo: #0f1115; --painel: #1a1d24; --painel-2: #232733; --texto: #eef0f4; --suave: #9aa1b2;
-    --borda: #2c313d; --verde: #22c55e; --amarelo: #eab308; --vermelho: #ef4444; --azul: #3b82f6; --ouro: #f5b301;
+    --fundo: #050a07; --painel: #0c1510; --painel-2: #111e17; --texto: #eef0f4; --suave: #9aa1b2;
+    --borda: #1f3328; --verde: #22e07f; --amarelo: #eab308; --vermelho: #ef4444; --azul: #1fd57a; --ouro: #f5b301;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   .voltar { display: inline-flex; align-items: center; gap: 6px; color: var(--suave); font-size: 13px; margin-right: 14px; padding: 6px 10px; border-radius: 8px; }
   .voltar:hover { background: var(--painel-2); color: var(--texto); }
   .topo > div:first-child { display: flex; align-items: center; }
-  .palco { background: radial-gradient(600px 400px at 50% 40%, rgba(124,92,255,.12), transparent 70%), var(--painel); border: 1px solid rgba(255,255,255,.06); }
+  .palco { background: radial-gradient(600px 400px at 50% 40%, rgba(31,213,122,.12), transparent 70%), var(--painel); border: 1px solid rgba(255,255,255,.06); }
   .cliente { box-shadow: 0 20px 50px rgba(0,0,0,.45); }
-  .controles { background: rgba(20,24,33,.7); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,.06); }
+  .controles { background: rgba(12,21,16,.78); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,.06); }
   .ctl { transition: transform .15s, background .15s; }
-  .ctl:hover { transform: translateY(-2px); background: #2f3546; }
+  .ctl:hover { transform: translateY(-2px); background: #1f3328; }
 
   /* Resumo ao encerrar */
   .resumo { position: fixed; inset: 0; background: rgba(8,9,12,.85); backdrop-filter: blur(6px); display: none; place-items: center; z-index: 30; padding: 16px; }
@@ -54,7 +55,7 @@
   .etiqueta small { color: var(--suave); }
   .voce { position: absolute; right: 16px; bottom: 16px; width: 200px; aspect-ratio: 16/10; background: var(--painel-2); border-radius: 12px; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--borda); }
   .voce video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-  .voce .inicial { width: 56px; height: 56px; border-radius: 50%; background: var(--azul); display: grid; place-items: center; font-size: 22px; font-weight: 600; }
+  .voce .inicial { width: 56px; height: 56px; border-radius: 50%; background: var(--azul); display: grid; place-items: center; font-size: 22px; font-weight: 700; color: #04140b; }
   .voce span.nome { position: absolute; left: 8px; bottom: 6px; font-size: 12px; background: rgba(0,0,0,.5); padding: 2px 8px; border-radius: 6px; }
   .legenda { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); max-width: 70%; background: rgba(0,0,0,.7); padding: 8px 14px; border-radius: 8px; text-align: center; opacity: 0; transition: opacity .2s; }
   .legenda.on { opacity: 1; }
@@ -84,7 +85,7 @@
   .etapas { display: flex; flex-wrap: wrap; gap: 6px; }
   .etapas span { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--painel-2); color: var(--suave); }
   .etapas span.feita { color: var(--texto); background: #1e3a2a; }
-  .etapas span.atual { color: #fff; background: var(--azul); }
+  .etapas span.atual { color: #04140b; font-weight: 600; background: var(--azul); }
   .metricas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .metricas div { background: var(--painel-2); border-radius: 10px; padding: 10px; }
   .metricas b { display: block; font-size: 20px; }
@@ -145,7 +146,7 @@
 <div class="app">
   <header class="topo">
     <div>
-      <a class="voltar" href="index.html">← Início</a>
+      <a class="voltar" href="index.html" title="Voltar ao início">← <span data-marca="logo" data-tamanho="22"></span></a>
       <div>
         <div class="titulo" id="titulo">Reunião de diagnóstico</div>
         <div class="sub" id="sub"></div>
@@ -159,7 +160,7 @@
       <div class="cliente" id="cliente"></div>
       <div class="etiqueta" id="etiqueta"></div>
       <div class="legenda" id="legenda"></div>
-      <div class="voce" id="voce"><div class="inicial">C</div><span class="nome">Você</span></div>
+      <div class="voce" id="voce"><div class="inicial" id="inicial"></div><span class="nome">Você</span></div>
     </section>
 
     <aside class="lado">
@@ -233,10 +234,12 @@
 
 <div class="celebracao" id="fechou"><div class="caixa"><b>Contrato fechado!</b><span id="fechou-txt"></span><div class="xp">+250 XP</div></div></div>
 
+<script src="marca.js"></script>
 <script src="personagens.js"></script>
 <script src="dados.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
+  $("inicial").textContent = PERFIL.inicial;
   const ETAPAS = ["Abertura", "Conexão", "Diagnóstico", "Apresentação", "Objeções", "Fechamento"];
   const params = new URLSearchParams(location.search);
   const modo = DADOS.MODOS[params.get("modo")] ? params.get("modo") : "diagnostico";
@@ -356,7 +359,7 @@
   $("cc").onclick = () => { legendas = !legendas; $("cc").classList.toggle("off", !legendas); };
   $("mic").onclick = () => $("mic").classList.toggle("off");
   $("cam").onclick = async () => {
-    if (camera) { camera.getTracks().forEach((t) => t.stop()); camera = null; $("voce").innerHTML = '<div class="inicial">C</div><span class="nome">Você</span>'; return; }
+    if (camera) { camera.getTracks().forEach((t) => t.stop()); camera = null; $("voce").innerHTML = `<div class="inicial">${PERFIL.inicial}</div><span class="nome">Você</span>`; return; }
     try {
       camera = await navigator.mediaDevices.getUserMedia({ video: true });
       $("voce").innerHTML = '<video autoplay muted playsinline></video><span class="nome">Você</span>';

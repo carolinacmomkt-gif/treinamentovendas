@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Treino de Vendas</title>
+<title>Closing</title>
+<link rel="icon" href="marca/icone.svg" type="image/svg+xml">
 <link rel="stylesheet" href="estilo.css">
 <style>
   .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
   /* Navegação */
-  .nav { position: sticky; top: 0; height: 100vh; padding: 24px 16px; display: flex; flex-direction: column; gap: 6px; border-right: 1px solid var(--borda); background: rgba(11, 13, 18, .6); backdrop-filter: blur(12px); }
+  .nav { position: sticky; top: 0; height: 100vh; padding: 24px 16px; display: flex; flex-direction: column; gap: 6px; border-right: 1px solid var(--borda); background: rgba(5, 10, 7, .72); backdrop-filter: blur(12px); }
   .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 17px; padding: 0 10px 20px; }
-  .logo i { width: 34px; height: 34px; border-radius: 10px; background: var(--gradiente); display: grid; place-items: center; font-style: normal; font-size: 18px; box-shadow: 0 6px 18px rgba(124,92,255,.4); }
+  .logo i { width: 34px; height: 34px; border-radius: 10px; background: var(--gradiente); display: grid; place-items: center; font-style: normal; font-size: 18px; box-shadow: 0 6px 18px rgba(31,213,122,.4); }
   .nav a { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; color: var(--texto-2); font-weight: 500; transition: background .15s, color .15s; }
   .nav a:hover { background: var(--superficie-2); color: var(--texto); }
-  .nav a.on { background: rgba(124, 92, 255, .16); color: #fff; }
+  .nav a.on { background: rgba(31,213,122, .16); color: #fff; }
   .nav a span { width: 22px; text-align: center; }
   .nav .rodape { margin-top: auto; padding: 14px; border-radius: 12px; }
   .nav .rodape small { color: var(--texto-3); display: block; }
@@ -91,7 +92,7 @@
   .rosto .foto { width: 74px; height: 74px; border-radius: 18px; overflow: hidden; border: 2px solid transparent; transition: transform .2s, border-color .2s; }
   .rosto .foto svg { width: 100%; height: 100%; display: block; }
   .rosto:hover .foto { transform: translateY(-3px); }
-  .rosto.on .foto { border-color: var(--marca); box-shadow: 0 0 0 4px rgba(124,92,255,.25); }
+  .rosto.on .foto { border-color: var(--marca); box-shadow: 0 0 0 4px rgba(31,213,122,.25); }
   .rosto small { display: block; font-size: 12px; color: var(--texto-2); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .escolhido { display: flex; gap: 14px; align-items: center; padding: 12px; border-radius: 12px; background: var(--superficie-2); }
   .escolhido .foto { width: 54px; height: 54px; border-radius: 14px; overflow: hidden; flex: 0 0 auto; }
@@ -173,7 +174,7 @@
 <body>
 <div class="app">
   <nav class="nav">
-    <div class="logo"><i>🎯</i>Treino de Vendas</div>
+    <div class="logo" data-marca="logo"></div>
     <a href="#" class="on"><span>🏠</span><span class="txt">Início</span></a>
     <a href="#comecar"><span>🎙️</span><span class="txt">Treinar</span></a>
     <a href="oratoria.html"><span>🗣️</span><span class="txt">Oratória</span></a>
@@ -286,6 +287,7 @@
   </main>
 </div>
 
+<script src="marca.js"></script>
 <script src="personagens.js"></script>
 <script src="dados.js"></script>
 <script>
@@ -297,7 +299,7 @@
 
   // Topo
   const hora = new Date().getHours();
-  $("saudacao").textContent = `${hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"}, Carol 👋`;
+  $("saudacao").textContent = `${hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"}, ${PERFIL.nome} 👋`;
   $("frase").textContent = est.nivel.proximo
     ? `Faltam ${fmt(est.nivel.faltam)} XP para você virar ${est.nivel.proximo}.`
     : "Você chegou ao nível máximo. Lenda!";
@@ -354,7 +356,7 @@
     g.querySelector("svg")?.remove();
     g.insertAdjacentHTML("afterbegin", `
       <svg viewBox="0 0 ${L} ${A}" role="img" aria-label="Evolução da nota">
-        <defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#3987e5" stop-opacity=".28"/><stop offset="1" stop-color="#3987e5" stop-opacity="0"/></linearGradient></defs>
+        <defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#22e07f" stop-opacity=".28"/><stop offset="1" stop-color="#22e07f" stop-opacity="0"/></linearGradient></defs>
         <g class="grade">${[0, 25, 50, 75, 100].map((v) => `<line x1="${esq}" x2="${L - dir}" y1="${y(v)}" y2="${y(v)}"/>`).join("")}</g>
         <g class="eixo">${[0, 50, 100].map((v) => `<text x="${esq - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`).join("")}
           ${dados.map((r, i) => (i % 2 === 0 || i === dados.length - 1) ? `<text x="${x(i)}" y="${A - 8}" text-anchor="middle">${datas[i]}</text>` : "").join("")}</g>

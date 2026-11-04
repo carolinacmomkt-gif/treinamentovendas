@@ -1,4 +1,4 @@
-# Treino de Vendas
+# Closing
 
 Simulador de reunião de vendas por voz para gestores de tráfego e agências. A IA faz o cliente, avalia a conversa ao vivo e entrega um relatório com base no método VENDE-C.
 

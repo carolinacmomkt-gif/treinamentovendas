@@ -1,4 +1,4 @@
-# Projeto: Simulador de Reunião de Vendas (tráfego pago e agência)
+# Closing: simulador de reunião de vendas (tráfego pago e agência)
 
 Versão do documento: 04/11/2026
 
@@ -7,6 +7,13 @@ Versão do documento: 04/11/2026
 Um simulador onde você conversa **por voz** com uma IA que faz o papel de um cliente real (dono de clínica, advogado, imobiliária etc.). Enquanto você conduz a reunião, uma segunda IA avalia cada fala sua e mostra um placar ao vivo. No final, sai um relatório com o que melhorar, por que e como, com base no **VENDE-C**.
 
 Primeiro uso: você. Depois: vender como assinatura para outros gestores de tráfego e donos de agência.
+
+### Identidade visual
+Nome do sistema: **Closing**. O visual segue a logomarca (`prototipo/marca/closing-logo.webp`):
+- **Cores:** fundo preto esverdeado (#050a07), verde vivo da marca (#1fd57a), verdes escuros (#0f9f52, #0b4d2a) e texto branco.
+- **Símbolo:** o "C" com a seta subindo (`prototipo/marca/icone.svg`), usado no menu e como ícone da aba.
+- **Letras:** nome "CLOSING" em Michroma, títulos em Saira, textos em Inter.
+- **Detalhe:** faixas verdes na diagonal nos cantos da tela, como no logo.
 
 ## 2. Modos de treino
 
@@ -20,7 +27,7 @@ Primeiro uso: você. Depois: vender como assinatura para outros gestores de trá
 
 ## 3. Nichos (v1)
 
-Baseados na sua lista de prospecção de 30/10/2026 e na Essence. Beleza e estética ficam de fora.
+Nichos que mais contratam tráfego pago e serviços de agência. Beleza e estética ficam de fora.
 
 1. Profissional da saúde / clínica médica
 2. Odontologia
@@ -154,7 +161,7 @@ Cada critério vale de 0 a 10. O peso muda conforme o modo (na prospecção, fec
 | 8 | Objeções | Ouviu → isolou → respondeu com pergunta; não rebateu nem cedeu rápido | Método dos 3 passos |
 | 9 | Negociação | Concessão só com contrapartida ("se eu…, você…?") | Negociação ganha-ganha |
 | 10 | Fechamento / próximo passo | Pediu a venda ou marcou data concreta; nunca "vamos nos falando" | Técnicas de fechamento; follow-up |
-| 11 | Ética e conformidade | Não prometeu resultado garantido; respeitou CFM/OAB | Regras Essence |
+| 11 | Ética e conformidade | Não prometeu resultado garantido; respeitou CFM/OAB | Regras dos conselhos de classe |
 | 12 | Segurança e clareza | Sem "acho", "talvez", "mais ou menos"; frases curtas | "A complexidade é a maior inimiga" |
 
 **Diagnóstico de perda:** se não fechou, a IA aponta qual dos 5 motivos do VENDE-C pesou (relacionamento fraco, dor não identificada, não qualificou, não explorou o impacto, não conectou solução à necessidade).
