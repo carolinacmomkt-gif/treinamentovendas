@@ -63,13 +63,14 @@ Testadas no ElevenLabs com a mesma fala de cliente desconfiado. Aprovadas:
 
 | Voz ElevenLabs | Gênero | Uso sugerido |
 |---|---|---|
-| **Paulo** (Natural Brazilian Voice) | Masculina | Dr. Ricardo, Dr. Paulo, Marcos, Roberto, com ajuste de ritmo e estabilidade para diferenciar |
+| **Paulo** (Natural Brazilian Voice) | Masculina | Dr. Ricardo, Dr. Paulo (mais formais e maduros) |
+| **Yuri** (Natural Brazilian, tom de conversa) | Masculina | Marcos, Roberto (donos de empresa, mais diretos) |
 | **Marcia** (Portuguese, jovem) | Feminina | Juliana, Dra. Camila |
 | **Raquel** (Expressive and Energetic) | Feminina | Fernanda, Patrícia |
 
 Reprovadas: Fabi, Eric, Fabio Oliveira. Indisponíveis no plano gratuito: Pri, Leo, Eduardo, Guilherme, Senhor M. (plano Creator).
 
-**Pendente:** só uma voz masculina foi aprovada. Para os 4 personagens masculinos soarem diferentes, testar mais vozes masculinas (inclusive as do plano Creator) antes da v1.
+Segunda rodada masculina gerada: Yuri (aprovado), Daniel, Ale Garcia, Eduardo S., Alex Pinhol, Moutella, Witalo (aguardando avaliação).
 
 Na v1: 8 personagens (4 homens e 4 mulheres). Dá para escolher pela galeria, filtrar por gênero ou sortear. O nicho e o perfil podem ser trocados em qualquer personagem: a voz e o rosto continuam, e a ficha muda.
 
