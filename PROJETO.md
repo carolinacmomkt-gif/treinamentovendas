@@ -44,6 +44,22 @@ Cada nicho tem uma **ficha** (arquivo de configuração) com:
 
 ## 4. Configuração do cliente (antes de começar)
 
+### Galeria de personagens
+Personagens prontos, **masculinos e femininos**, cada um com nome, idade, foto ilustrada, voz própria (sotaque brasileiro, timbre e ritmo diferentes) e um jeito de falar. Exemplos:
+
+| Personagem | Idade | Voz | Perfil padrão |
+|---|---|---|---|
+| Dr. Ricardo | 52 | grave, pausada | Ortopedista analítico, quer números |
+| Dra. Camila | 38 | animada, rápida | Dentista comunicadora, decide pela conexão |
+| Marcos | 45 | direta, seca | Dono de empresa de energia solar, executor, sem paciência |
+| Fernanda | 41 | firme, educada | Dona de imobiliária, planejadora, cautelosa |
+| Dr. Paulo | 60 | formal | Advogado tradicional, "meu cliente vem de indicação" |
+| Juliana | 33 | descontraída | Dona de academia, já teve agência ruim |
+| Roberto | 50 | desconfiada | Dono de loja de materiais de construção, "internet não funciona pro meu ramo" |
+| Patrícia | 47 | calma | Dona de marcenaria de móveis planejados, ticket alto, compara orçamento |
+
+Na v1: 8 personagens (4 homens e 4 mulheres). Dá para escolher pela galeria, filtrar por gênero ou sortear. O nicho e o perfil podem ser trocados em qualquer personagem: a voz e o rosto continuam, e a ficha muda.
+
 - **Nicho** (lista acima).
 - **Perfil DISC:** Executor, Comunicador, Planejador ou Analítico.
 - **Nível de consciência:** 1 (não sabe que tem o problema) a 4 (já busca agência).
@@ -79,6 +95,7 @@ A cada fala sua, a IA avaliadora atualiza:
 - **Etapa atual:** abertura → conexão → diagnóstico → apresentação → objeções → fechamento.
 - **Alerta curto** quando você erra. Exemplos: "Falou de preço antes de achar a dor"; "Mensagem terminou sem pergunta"; "Cedeu desconto sem contrapartida".
 - **Proporção de fala:** você x cliente (meta: cliente falar ~60%).
+- **Painel de comunicação:** ritmo (palavras por minuto), contador de vícios de linguagem e de palavras de insegurança, atualizados enquanto você fala (detalhes na seção 8).
 - **Modo prova:** esconde o placar e só mostra no fim.
 
 ## 7. Critérios de avaliação (VENDE-C)
@@ -102,10 +119,38 @@ Cada critério vale de 0 a 10. O peso muda conforme o modo (na prospecção, fec
 
 **Diagnóstico de perda:** se não fechou, a IA aponta qual dos 5 motivos do VENDE-C pesou (relacionamento fraco, dor não identificada, não qualificou, não explorou o impacto, não conectou solução à necessidade).
 
-## 8. Relatório final
+## 8. Comunicação: dicção e vocabulário
 
-1. **Nota geral** e resultado (fechou / marcou próximo passo / perdeu).
-2. **Gráfico radar** com os 12 critérios.
+Avaliação separada da técnica de vendas, porque dá para vender bem e falar mal (e o contrário). Vira uma **nota de comunicação de 0 a 100**.
+
+### Dicção e ritmo
+| Métrica | Como mede | Faixa boa |
+|---|---|---|
+| Ritmo | Palavras por minuto em cada fala sua | 130 a 160 ppm |
+| Vícios de linguagem | Contagem de "né", "tipo", "então", "assim", "éé", "ããh" | Menos de 3 a cada 5 minutos |
+| Fluidez | Frases interrompidas, recomeços ("eu… a gente… o que eu quero dizer") | Poucas |
+| Pausas | Silêncios longos no meio da frase x pausas estratégicas depois de uma pergunta | Pausar depois de perguntar |
+| Clareza | Trechos que o reconhecimento de voz não entendeu (sinal de fala embolada ou baixa) | Quase nenhum |
+| Pronúncia (opcional, v2) | Nota de pronúncia, fluência e entonação por um serviço de avaliação de fala em português | Acima de 80 |
+
+### Vocabulário
+| Métrica | O que observa |
+|---|---|
+| Palavras de insegurança | "acho", "talvez", "meio que", "mais ou menos", "vou tentar" |
+| Jargão sem explicação | CTR, CPA, ROAS, pixel, funil usados com um cliente leigo sem traduzir |
+| Variedade | Repetição excessiva das mesmas palavras e expressões |
+| Palavras de valor | Fala em benefício e resultado ("mais pacientes particulares") e não só em tarefa ("vou subir anúncio") |
+| Linguagem do cliente | Usa as palavras que o cliente usou (backtracking) |
+| Formalidade | Ajusta o tom ao personagem (formal com Dr. Paulo, leve com Juliana) |
+
+No relatório, cada problema vem com o trecho, o porquê e a troca sugerida. Exemplo: "Você disse *acho que dá pra gerar resultado* 4 vezes. Isso passa insegurança. Troque por *o plano é gerar X em Y dias*."
+
+**Ponto técnico a validar na v1:** muitos transcritores limpam "éé" e "né" automaticamente. A transcrição precisa ser literal para contar vícios; isso será testado logo no começo.
+
+## 9. Relatório final
+
+1. **Nota geral** e resultado (fechou / marcou próximo passo / perdeu), com a nota de vendas e a nota de comunicação separadas.
+2. **Gráfico radar** com os 12 critérios + resumo de comunicação (ritmo, vícios, palavras de insegurança, jargão).
 3. **Estado oculto revelado:** o que o cliente tinha de verdade e o que você descobriu ✔ ou deixou passar ✘.
 4. **3 pontos fortes**, com o trecho da conversa.
 5. **3 pontos de melhoria**, cada um com:
@@ -114,16 +159,50 @@ Cada critério vale de 0 a 10. O peso muda conforme o modo (na prospecção, fec
    - **Como:** a frase alternativa pronta para usar.
 6. **Momento decisivo:** onde a venda foi ganha ou perdida.
 7. **Exercício para a próxima rodada:** cenário e foco sugeridos.
-8. Opção de **ouvir de novo** trechos da conversa (gravação).
+8. **Conquistas desbloqueadas** e XP ganho na rodada.
+9. Opção de **ouvir de novo** trechos da conversa (gravação).
 
-## 9. Histórico e evolução
+## 10. Conquistas, níveis e evolução
 
-- Lista de treinos com data, nicho, modo e nota.
-- Gráfico de evolução por critério.
-- **Ponto fraco recorrente:** ex.: "Fechamento abaixo de 5 em 4 dos últimos 5 treinos".
+### XP e níveis
+Cada treino dá XP pela nota, pela dificuldade e pelas conquistas. Os níveis:
+
+1. Estagiário → 2. SDR → 3. Vendedor → 4. Closer → 5. Closer Sênior → 6. Head de Vendas → 7. Lenda
+
+### Conquistas
+Cada conquista tem bronze, prata e ouro (ex.: fazer algo 1, 5 e 20 vezes).
+
+**Método de vendas**
+- **Perguntador profissional:** 8 ou mais perguntas abertas numa reunião
+- **Detetive:** descobriu todo o estado oculto do cliente (dor, orçamento, decisor, objeção real)
+- **Descascador:** ouviu, isolou e respondeu uma objeção com pergunta
+- **Nada de desconto:** fechou uma negociação sem ceder sem contrapartida
+- **Próximo passo:** nunca terminou uma reunião sem data marcada (sequência)
+- **Primeira venda / Fechamento difícil / Domador de céticos**
+
+**Comunicação**
+- **Voz firme:** reunião inteira sem palavras de insegurança
+- **Sem vícios:** menos de 3 vícios de linguagem na reunião
+- **Ritmo de locutor:** ritmo na faixa ideal o tempo todo
+- **Tradutor:** usou termos técnicos sempre explicando para o leigo
+- **Camaleão:** ajustou a formalidade a 5 personagens diferentes
+- **Escuta de ouro:** cliente falou mais de 60% do tempo
+
+**Constância e variedade**
+- **Sequência:** treinou 3, 7 e 30 dias seguidos
+- **Rodado:** fechou em todos os 12 nichos
+- **Leitor de gente:** fechou com os 4 perfis DISC
+- **Todas as vozes:** treinou com todos os personagens
+
+### Evolução
+- Lista de treinos com data, personagem, nicho, modo e notas.
+- Gráfico de evolução da nota de vendas, da nota de comunicação e de cada critério.
+- Recordes pessoais (maior nota, menos vícios, maior sequência).
+- **Ponto fraco recorrente:** ex.: "Fechamento abaixo de 5 em 4 dos últimos 5 treinos" ou "Vícios subiram nesta semana".
+- **Desafio da semana:** gerado a partir do ponto fraco (ex.: "3 reuniões sem dizer *acho*").
 - Exportar o relatório em PDF.
 
-## 10. Arquitetura técnica
+## 11. Arquitetura técnica
 
 ```
 Navegador (site no Netlify)
@@ -131,6 +210,8 @@ Navegador (site no Netlify)
  ├─ Reunião por voz  ←→  ElevenLabs Agents (fala ↔ texto, voz, turnos, interrupção)
  │                          └─ cérebro do cliente: Claude (prompt do personagem)
  ├─ A cada fala sua  →  Netlify Function "avaliar-turno"  →  Claude Haiku (rápido e barato)  →  placar
+ ├─ Métricas de comunicação (ritmo, vícios, palavras)  →  calculadas no navegador a partir da transcrição e do tempo de cada fala
+ ├─ Conquistas e XP  →  regras fixas aplicadas ao resultado de cada treino
  └─ Ao encerrar  →  Netlify Background Function "relatorio"  →  Claude Opus (transcrição completa)  →  relatório
 ```
 
@@ -147,15 +228,18 @@ Navegador (site no Netlify)
 ### Custo a acompanhar
 O custo principal é por **minuto de voz** (ElevenLabs) + avaliação (Claude). Antes de definir o preço para outros gestores, medir quanto custa uma reunião de 20 minutos na v1.
 
-## 11. Versões
+## 12. Versões
 
 **v1: para você treinar**
 - Modos: Prospecção, Diagnóstico, Apresentação e fechamento
 - 12 nichos com ficha
+- 8 personagens (4 masculinos e 4 femininos) com voz própria
 - Configuração do cliente + estado oculto
-- Reunião por voz (ElevenLabs Agents)
-- Placar ao vivo
+- Reunião por voz ao vivo (ElevenLabs Agents)
+- Placar ao vivo + painel de comunicação
+- Avaliação de dicção (ritmo, vícios, fluidez) e vocabulário
 - Relatório final completo
+- XP, níveis, conquistas e desafio da semana
 - Histórico local
 
 **v2: para vender**
@@ -165,8 +249,11 @@ O custo principal é por **minuto de voz** (ElevenLabs) + avaliação (Claude). 
 - Gravação para ouvir de novo
 - Exportar PDF
 - Painel do gestor de agência (ver a evolução do time)
+- Nota de pronúncia por serviço especializado
+- Ranking entre usuários (opcional, com quem quiser participar)
+- Mais personagens
 
-## 12. O que preciso antes de construir
+## 13. O que preciso antes de construir
 
 - [ ] Conta no ElevenLabs com acesso a Agents e uma chave de API
 - [ ] Chave de API da Anthropic (Claude)
