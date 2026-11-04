@@ -33,6 +33,16 @@ A isso soma-se o ElevenLabs (voz e conversa) e o Claude (avaliação).
 3. Se o Anam também mantiver o estilo, ele é o caminho mais simples, porque já liga oficialmente ao ElevenLabs Agents.
 4. Simli e LiveAvatar ficam como opções mais baratas para quando houver muitos usuários, se aceitarem bem os retratos.
 
+## Teste de 04/11/2026 (retrato da Juliana)
+
+| | Runway Characters | Anam |
+|---|---|---|
+| Aceitou o retrato | Sim, em cerca de 1 minuto | Sim (completa as bordas para recortar em formato quadrado) |
+| Manteve o estilo animação | Sim. Durante a chamada o rosto fica um pouco mais realista que o retrato, mas continua estilizado | Sim, na prévia |
+| Português | Primeira fala dita e transcrita em português | A testar |
+| Observações | Plano grátis: 20 créditos (cerca de 1 min), marca d'água "AI-generated with runway", aviso de "conexão instável" durante a chamada, voz pronta do Runway (não ElevenLabs), grava as conversas na conta | 30 min grátis por mês; dá para importar vozes do ElevenLabs |
+| Opinião do Gustavo | A preencher | A preencher |
+
 ## Fontes
 
 - Comparativo de preços de avatares em tempo real (Akapulu, set/2026): https://blog.akapulu.com/p/real-time-avatar-api-pricing-index/
