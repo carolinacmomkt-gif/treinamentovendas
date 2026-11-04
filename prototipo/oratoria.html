@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oratória · Treino de Vendas</title>
+<link rel="stylesheet" href="estilo.css">
+<style>
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 70px; }
+  .topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+  .topo a.voltar { color: var(--texto-2); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+  .topo a.voltar:hover { background: var(--superficie-2); color: var(--texto); }
+  h1 { margin: 6px 0 2px; font-size: 30px; letter-spacing: -.02em; }
+  .lead { color: var(--texto-2); margin: 0; max-width: 640px; }
+  h2 { font-size: 17px; margin: 0 0 4px; }
+  .sub { color: var(--texto-3); font-size: 13px; margin: 0 0 14px; }
+  section { margin-bottom: 22px; }
+  .bloco { padding: 20px 22px; }
+  .grade-topo { display: grid; grid-template-columns: 1fr 1.3fr; gap: 14px; }
+
+  /* Ritual */
+  .ritual { display: flex; gap: 20px; align-items: center; }
+  .respiro { flex: 0 0 auto; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, rgba(124,92,255,.5), rgba(57,135,229,.15)); transition: transform 4s ease-in-out; font-weight: 700; text-align: center; font-size: 13px; padding: 10px; }
+  .respiro.inspira { transform: scale(1.25); }
+  .respiro.solta { transform: scale(.85); transition-duration: 6s; }
+  .ritual p { margin: 0 0 12px; color: var(--texto-2); font-size: 14px; }
+  .ritual .linha-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .botao-sec { height: 42px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--borda-forte); background: var(--superficie-2); font-weight: 600; }
+  .botao-sec:hover { background: var(--superficie-3); }
+
+  /* Escada */
+  .escada { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .degrau { padding: 14px; border-radius: 12px; background: var(--superficie-2); border: 1px solid var(--borda); position: relative; }
+  .degrau.feito { border-color: rgba(34,197,94,.45); background: linear-gradient(180deg, rgba(34,197,94,.1), transparent), var(--superficie-2); }
+  .degrau.atual { border-color: var(--marca); box-shadow: 0 0 0 3px rgba(124,92,255,.2); }
+  .degrau .n { font-size: 12px; color: var(--texto-3); font-weight: 600; }
+  .degrau b { display: block; margin: 2px 0 6px; font-size: 14px; }
+  .degrau small { color: var(--texto-2); font-size: 12px; display: block; }
+  .degrau .prog { height: 6px; border-radius: 3px; background: var(--superficie-3); margin-top: 10px; overflow: hidden; }
+  .degrau .prog i { display: block; height: 100%; background: var(--bom); }
+  .degrau a { display: inline-block; margin-top: 8px; font-size: 12px; color: #c4b5fd; font-weight: 600; }
+
+  /* Exercícios */
+  .exercicios { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .ex { text-align: left; padding: 18px; border-radius: var(--raio); border: 1px solid var(--borda); background: var(--superficie); transition: transform .2s, border-color .2s; display: flex; flex-direction: column; gap: 6px; }
+  .ex:hover { transform: translateY(-3px); border-color: var(--marca); }
+  .ex .icone { font-size: 26px; }
+  .ex b { font-size: 16px; }
+  .ex p { margin: 0; color: var(--texto-2); font-size: 13px; flex: 1; }
+  .ex .rodape { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px; color: var(--texto-3); }
+  .ex .foco { padding: 2px 8px; border-radius: 999px; background: rgba(124,92,255,.15); color: #c4b5fd; font-weight: 600; }
+  .ex .melhor { color: var(--ouro); font-weight: 600; }
+
+  /* Conquistas e histórico */
+  .grade-baixo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .conqs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .cq { text-align: center; padding: 12px 8px; border-radius: 12px; background: var(--superficie-2); border: 1px solid var(--borda); }
+  .cq span { font-size: 26px; display: block; filter: grayscale(1); opacity: .4; }
+  .cq.feita { border-color: rgba(245,179,1,.4); }
+  .cq.feita span { filter: none; opacity: 1; }
+  .cq b { font-size: 12px; display: block; margin-top: 4px; }
+  .cq small { font-size: 11px; color: var(--texto-3); }
+  .hist { display: grid; gap: 8px; }
+  .hist div { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--superficie-2); font-size: 14px; }
+  .hist small { color: var(--texto-3); }
+  .hist .n { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .vazio { color: var(--texto-3); font-size: 14px; padding: 12px; text-align: center; }
+
+  /* Estúdio */
+  .estudio { position: fixed; inset: 0; background: rgba(8,9,12,.94); backdrop-filter: blur(8px); z-index: 20; display: none; overflow: auto; padding: 24px 16px; }
+  .estudio.on { display: block; }
+  .estudio .caixa { max-width: 980px; margin: 0 auto; }
+  .estudio .cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+  .estudio .cab h2 { font-size: 24px; }
+  .fechar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--borda-forte); background: var(--superficie-2); font-size: 18px; flex: 0 0 auto; }
+  .instrucao { padding: 16px 18px; margin-bottom: 14px; }
+  .instrucao ol { margin: 6px 0 0; padding-left: 20px; color: var(--texto-2); }
+  .leitura { padding: 20px 22px; font-size: 20px; line-height: 1.6; margin-bottom: 14px; }
+  .leitura em { color: #c4b5fd; font-style: normal; font-weight: 700; }
+  .painel { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .tom { padding: 16px; }
+  .tom canvas { width: 100%; height: 170px; display: block; border-radius: 10px; background: var(--superficie-2); }
+  .tom .leg { display: flex; justify-content: space-between; color: var(--texto-3); font-size: 12px; margin-top: 8px; }
+  .medidores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .med { padding: 14px; border-radius: 12px; background: var(--superficie-2); }
+  .med small { color: var(--texto-3); font-size: 12px; display: block; }
+  .med b { font-size: 26px; font-variant-numeric: tabular-nums; display: block; margin-top: 2px; }
+  .med .faixa { height: 8px; border-radius: 4px; background: var(--superficie-3); margin-top: 8px; position: relative; overflow: hidden; }
+  .med .faixa .alvo { position: absolute; top: 0; bottom: 0; background: rgba(34,197,94,.3); }
+  .med .faixa i { position: absolute; top: -2px; width: 4px; height: 12px; border-radius: 2px; background: #fff; transition: left .3s; }
+  .med.ok b { color: var(--bom); } .med.alto b { color: var(--atencao); }
+  .volume { height: 8px; border-radius: 4px; background: var(--superficie-3); margin-top: 8px; overflow: hidden; }
+  .volume i { display: block; height: 100%; width: 0; background: var(--gradiente); transition: width .08s; }
+  .acoes-estudio { display: flex; align-items: center; gap: 14px; margin: 16px 0; flex-wrap: wrap; }
+  .gravar { width: 72px; height: 72px; border-radius: 50%; border: 0; background: var(--critico); color: #fff; font-size: 26px; box-shadow: 0 0 0 6px rgba(239,68,68,.2); transition: transform .15s; }
+  .gravar:hover { transform: scale(1.05); }
+  .gravar.ativo { animation: pulsar 1.2s infinite; }
+  @keyframes pulsar { 50% { box-shadow: 0 0 0 14px rgba(239,68,68,.08); } }
+  .cronometro { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .aviso { flex: 1; min-height: 44px; padding: 10px 14px; border-radius: 12px; background: var(--superficie-2); color: var(--texto-2); display: flex; align-items: center; transition: background .2s; }
+  .aviso.on { background: rgba(234,179,8,.15); color: #fde68a; }
+  .aviso.bom { background: rgba(34,197,94,.15); color: #86efac; }
+  .demo { background: none; border: 1px dashed var(--borda-forte); color: var(--texto-3); border-radius: 10px; padding: 8px 12px; font-size: 13px; }
+  .transcricao { padding: 14px 16px; min-height: 64px; color: var(--texto-2); font-size: 15px; }
+  .transcricao mark { background: rgba(234,179,8,.25); color: #fde68a; border-radius: 4px; padding: 0 3px; }
+  .transcricao .interino { color: var(--texto-3); }
+  .nota-tecnica { color: var(--texto-3); font-size: 12px; margin-top: 8px; }
+
+  /* Resultado */
+  .resultado { display: none; padding: 22px; margin-top: 14px; }
+  .resultado.on { display: block; animation: entrar .4s forwards; }
+  .resultado .top { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .nota-grande { width: 110px; height: 110px; border-radius: 50%; display: grid; place-items: center; font-size: 38px; font-weight: 800; background: conic-gradient(var(--bom) calc(var(--p) * 1%), var(--superficie-3) 0); position: relative; }
+  .nota-grande::after { content: ""; position: absolute; inset: 9px; border-radius: 50%; background: var(--superficie); }
+  .nota-grande span { position: relative; z-index: 1; }
+  .linhas-res { display: grid; gap: 8px; margin: 18px 0; }
+  .linhas-res div { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--superficie-2); font-size: 14px; align-items: center; }
+  .linhas-res small { color: var(--texto-3); }
+  .dica-res { padding: 14px 16px; border-radius: 12px; background: rgba(124,92,255,.12); border: 1px solid rgba(124,92,255,.3); }
+  .dica-res b { display: block; margin-bottom: 4px; }
+
+  @media (max-width: 900px) {
+    .grade-topo, .grade-baixo, .painel { grid-template-columns: 1fr; }
+    .escada { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .ritual { flex-direction: column; text-align: center; }
+    .conqs { grid-template-columns: repeat(2, 1fr); }
+    .leitura { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="topo entrar">
+    <div>
+      <a class="voltar" href="index.html">← Início</a>
+      <h1>🗣️ Oratória</h1>
+      <p class="lead">Treinos curtos, um foco por vez: ritmo, pausas, tom, volume e confiança. Baseado em estudos científicos sobre fala persuasiva.</p>
+    </div>
+  </div>
+
+  <section class="grade-topo">
+    <div class="bloco cartao-base entrar" style="animation-delay:.05s">
+      <h2>Ritual pré-reunião</h2>
+      <p class="sub">30 segundos antes de entrar. Ansiedade e empolgação são a mesma energia: em vez de tentar se acalmar, chame de empolgação.</p>
+      <div class="ritual">
+        <div class="respiro" id="respiro">Pronta?</div>
+        <div>
+          <p>Escolha a frase que você vai dizer em voz alta no final:</p>
+          <div class="linha-chips" id="frases">
+            <button class="chip on" data-f="Estou animada!">"Estou animada!"</button>
+            <button class="chip" data-f="Carol, você está pronta.">"Carol, você está pronta."</button>
+          </div>
+          <button class="botao-sec" id="iniciar-ritual">▶ Começar ritual</button>
+        </div>
+      </div>
+    </div>
+    <div class="bloco cartao-base entrar" style="animation-delay:.1s">
+      <h2>Escada de exposição</h2>
+      <p class="sub">Suba um degrau de cada vez. Um degrau se completa com 3 treinos com nota 70 ou mais.</p>
+      <div class="escada" id="escada"></div>
+    </div>
+  </section>
+
+  <section class="entrar" style="animation-delay:.15s">
+    <h2>Exercícios</h2>
+    <p class="sub">Escolha um foco. Cada exercício leva de 20 segundos a 1 minuto.</p>
+    <div class="exercicios" id="exercicios"></div>
+  </section>
+
+  <section class="grade-baixo entrar" style="animation-delay:.2s">
+    <div class="bloco cartao-base">
+      <h2>Conquistas de oratória</h2>
+      <p class="sub" id="conq-sub"></p>
+      <div class="conqs" id="conqs"></div>
+    </div>
+    <div class="bloco cartao-base">
+      <h2>Últimos treinos</h2>
+      <p class="sub">Sua evolução comparada com você mesma.</p>
+      <div class="hist" id="hist"></div>
+    </div>
+  </section>
+</main>
+
+<div class="estudio" id="estudio">
+  <div class="caixa">
+    <div class="cab">
+      <div><span class="chip" id="est-foco"></span><h2 id="est-titulo" style="margin-top:8px"></h2></div>
+      <button class="fechar" id="fechar" aria-label="Fechar">✕</button>
+    </div>
+    <div class="instrucao cartao-base"><b>Como fazer</b><ol id="est-passos"></ol></div>
+    <div class="leitura cartao-base" id="est-leitura"></div>
+
+    <div class="acoes-estudio">
+      <button class="gravar" id="gravar" title="Começar">🎙️</button>
+      <div class="cronometro" id="cron">0:00</div>
+      <div class="aviso" id="aviso">Aperte o microfone e comece a falar.</div>
+      <button class="demo" id="demo" title="Simula uma fala para ver como a tela reage">Simular sem microfone</button>
+    </div>
+
+    <div class="painel">
+      <div class="tom cartao-base">
+        <b>Seu tom de voz</b>
+        <canvas id="canvas" width="800" height="200"></canvas>
+        <div class="leg"><span>8 s atrás</span><span>Linha mais alta = voz mais aguda</span><span>agora</span></div>
+      </div>
+      <div class="medidores">
+        <div class="med" id="m-ritmo"><small>Ritmo (sílabas/s)</small><b>–</b><div class="faixa"><div class="alvo" style="left:38%;width:20%"></div><i style="left:0"></i></div></div>
+        <div class="med" id="m-vicios"><small>Vícios por minuto</small><b>0</b><small>meta: até 5</small></div>
+        <div class="med" id="m-variacao"><small>Variação de tom</small><b>–</b><small>em semitons</small></div>
+        <div class="med" id="m-pausas"><small>Pausas boas</small><b>0</b><small>de 0,5 a 3 s</small></div>
+        <div class="med" id="m-final" style="grid-column: span 2"><small>Volume</small><div class="volume"><i id="vol"></i></div><small id="m-final-txt" style="margin-top:8px">Afirmações terminando firme: –</small></div>
+      </div>
+    </div>
+
+    <div class="transcricao cartao-base" id="transcricao" style="margin-top:14px">A transcrição da sua fala aparece aqui.</div>
+    <p class="nota-tecnica" id="nota-tecnica"></p>
+
+    <div class="resultado cartao-base" id="resultado"></div>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const CHAVE = "treino-vendas:oratoria";
+  const VICIOS = ["né", "tipo", "então", "assim", "éé", "é é", "ãã", "ahn", "hum", "eh", "aí"];
+  const INSEGURANCA = ["acho", "talvez", "meio que", "mais ou menos", "vou tentar"];
+  const OBJECOES = ["Tá caro.", "Vou pensar.", "Já contratei agência e não deu em nada.", "Preciso falar com meu sócio.", "Meu cliente vem de indicação, não preciso.", "Vi um freelancer bem mais barato."];
+  const TEMAS = ["Por que todo negócio local deveria anunciar", "O erro mais comum de quem impulsiona post", "Como você escolhe um cliente ideal", "O que é um bom atendimento no WhatsApp"];
+
+  const EXERCICIOS = [
+    { id: "aquecimento", icone: "🎵", nome: "Aquecimento de ritmo", foco: "Ritmo", seg: 45, metrica: "ritmo",
+      desc: "Leia o texto mantendo a barra de ritmo na faixa verde.",
+      passos: ["Aperte o microfone.", "Leia o texto em voz alta, no seu ritmo natural de conversa.", "Olhe a barra de ritmo: tente ficar na faixa verde."],
+      leitura: () => "Olha, o que a gente faz é simples. Primeiro eu entendo quem é o seu cliente ideal e quanto ele vale pra você. Depois eu monto anúncios que falam direto com essa pessoa e levam ela pro seu WhatsApp. E toda semana eu te mostro quanto entrou de contato, quanto custou cada um e o que eu vou melhorar." },
+    { id: "pitch", icone: "⏱️", nome: "Pitch de 30 segundos", foco: "Clareza", seg: 30, metrica: "geral",
+      desc: "Apresente sua agência em 30 segundos, com frases curtas.",
+      passos: ["Diga quem você ajuda.", "Diga qual problema resolve.", "Termine com um resultado concreto."],
+      leitura: () => "Sem texto: fale com suas palavras. Quem você ajuda? Qual problema resolve? Que resultado entrega?" },
+    { id: "muleta", icone: "🚫", nome: "Sem muleta", foco: "Vícios", seg: 60, metrica: "vicios",
+      desc: "Fale 1 minuto sobre um tema sorteado sem encher de \"né\" e \"tipo\".",
+      passos: ["Leia o tema sorteado.", "Fale por 1 minuto.", "Quando sentir vontade de dizer \"éé\", faça uma pausa em silêncio."],
+      leitura: () => `Tema: <em>${TEMAS[Math.floor(Math.random() * TEMAS.length)]}</em>` },
+    { id: "pausa", icone: "⏸️", nome: "Pausa de ouro", foco: "Pausas", seg: 60, metrica: "pausas",
+      desc: "Faça perguntas ao cliente e segure o silêncio depois de cada uma.",
+      passos: ["Faça uma pergunta em voz alta.", "Fique em silêncio por 2 segundos.", "Repita com as três perguntas abaixo."],
+      leitura: () => "1. <em>Hoje, quanto um cliente novo vale pra você?</em><br>2. <em>O que aconteceu da última vez que você anunciou?</em><br>3. <em>Se isso desse certo, o que mudaria no seu mês?</em>" },
+    { id: "montanha", icone: "🎢", nome: "Montanha-russa", foco: "Tom", seg: 45, metrica: "variacao",
+      desc: "Repita a mesma frase dando ênfase em palavras diferentes.",
+      passos: ["Diga a frase dando ênfase na palavra destacada.", "Repita mudando a ênfase para a próxima linha.", "Veja no gráfico seu tom subindo e descendo."],
+      leitura: () => "<em>Eu</em> vou trazer mais clientes pra você.<br>Eu vou trazer <em>mais</em> clientes pra você.<br>Eu vou trazer mais <em>clientes</em> pra você.<br>Eu vou trazer mais clientes pra <em>você</em>." },
+    { id: "final", icone: "⬇️", nome: "Final firme", foco: "Entonação", seg: 45, metrica: "final",
+      desc: "Termine afirmações com o tom descendo, sem soar como pergunta.",
+      passos: ["Diga cada afirmação.", "No fim, deixe o tom cair, como quem coloca um ponto final.", "Faça uma pausa curta entre as frases."],
+      leitura: () => "O plano tem três etapas.<br>Em trinta dias você vê os primeiros contatos.<br>Eu te mando um relatório toda semana.<br>O investimento é de dois mil reais por mês.<br>A gente começa na segunda-feira." },
+    { id: "volume", icone: "🔊", nome: "Volume com intenção", foco: "Volume", seg: 45, metrica: "volume",
+      desc: "Suba a voz só na palavra que importa.",
+      passos: ["Leia as frases.", "Fale mais forte só nas palavras destacadas.", "Volte ao volume normal logo depois."],
+      leitura: () => "Isso vai aumentar o seu <em>lucro</em>, não só o número de seguidores.<br>O problema não é o anúncio. É o <em>atendimento</em> depois do clique.<br>Você não precisa de mais curtidas. Precisa de <em>clientes</em>." },
+    { id: "objecao", icone: "⚡", nome: "Objeção relâmpago", foco: "Fluência", seg: 20, metrica: "geral",
+      desc: "Uma objeção sorteada e 20 segundos para responder sem travar.",
+      passos: ["Leia a objeção.", "Responda em até 20 segundos.", "Termine com uma pergunta para o cliente."],
+      leitura: () => `O cliente diz: <em>"${OBJECOES[Math.floor(Math.random() * OBJECOES.length)]}"</em>` },
+  ];
+
+  // ---------- Histórico ----------
+  function carregar() { try { return JSON.parse(localStorage.getItem(CHAVE)) || []; } catch { return []; } }
+  function salvar(r) { const l = carregar(); l.push(r); try { localStorage.setItem(CHAVE, JSON.stringify(l)); } catch {} }
+
+  function conquistas(l) {
+    const de = (id) => l.filter((r) => r.ex === id);
+    const aq = de("aquecimento");
+    let seguidos = 0, melhorSeq = 0;
+    aq.forEach((r) => { seguidos = r.ritmo >= 3.8 && r.ritmo <= 4.8 ? seguidos + 1 : 0; melhorSeq = Math.max(melhorSeq, seguidos); });
+    return [
+      { nome: "Ritmo de locutor", desc: "3 aquecimentos seguidos na faixa", icone: "🎵", feita: melhorSeq >= 3 },
+      { nome: "Sem muleta", desc: "1 minuto com até 3 vícios", icone: "🚫", feita: de("muleta").some((r) => r.viciosMin <= 3) },
+      { nome: "Pausa de ouro", desc: "3 pausas boas num treino", icone: "⏸️", feita: de("pausa").some((r) => r.pausas >= 3) },
+      { nome: "Voz viva", desc: "Variação de tom acima de 3 semitons em 5 treinos", icone: "🎢", feita: l.filter((r) => r.variacao >= 3).length >= 5 },
+      { nome: "Final firme", desc: "80% das afirmações terminando firme", icone: "⬇️", feita: de("final").some((r) => r.finalFirme >= 0.8) },
+      { nome: "Ritual feito", desc: "Complete o ritual pré-reunião", icone: "🧘", feita: l.some((r) => r.ex === "ritual") },
+    ];
+  }
+
+  function desenharPagina() {
+    const l = carregar();
+    const bons = l.filter((r) => r.ex !== "ritual" && r.nota >= 70).length;
+    const degraus = [
+      { nome: "Sozinha", desc: "Exercícios de oratória", atual: Math.min(bons, 3) },
+      { nome: "Cliente fácil", desc: "Reunião curta, cliente receptivo", link: "sala.html?p=camila&modo=diagnostico&dif=facil" },
+      { nome: "Cliente difícil", desc: "Objeções e pressão", link: "sala.html?p=marcos&modo=diagnostico&dif=dificil" },
+      { nome: "Reunião longa", desc: "Fechamento completo", link: "sala.html?p=paulo&modo=fechamento&dif=dificil" },
+    ];
+    const primeiroIncompleto = bons >= 3 ? 1 : 0;
+    $("escada").innerHTML = degraus.map((d, i) => {
+      const feito = i === 0 ? bons >= 3 : false;
+      const cls = feito ? "feito" : i === primeiroIncompleto ? "atual" : "";
+      const prog = i === 0 ? `<div class="prog"><i style="width:${(d.atual / 3) * 100}%"></i></div><small style="margin-top:6px">${d.atual} de 3</small>` : "";
+      const link = d.link && i <= primeiroIncompleto + 0 ? `<a href="${d.link}">Treinar →</a>` : d.link ? `<small style="margin-top:8px;color:var(--texto-3)">🔒 Complete o degrau anterior</small>` : "";
+      return `<div class="degrau ${cls}"><div class="n">Degrau ${i + 1}</div><b>${feito ? "✓ " : ""}${d.nome}</b><small>${d.desc}</small>${prog}${link}</div>`;
+    }).join("");
+
+    $("exercicios").innerHTML = EXERCICIOS.map((e) => {
+      const melhor = Math.max(0, ...l.filter((r) => r.ex === e.id).map((r) => r.nota));
+      return `<button class="ex" data-id="${e.id}"><span class="icone">${e.icone}</span><b>${e.nome}</b><p>${e.desc}</p>
+        <div class="rodape"><span class="foco">${e.foco}</span><span>${e.seg}s ${melhor ? `· <span class="melhor">melhor ${melhor}</span>` : ""}</span></div></button>`;
+    }).join("");
+    document.querySelectorAll(".ex").forEach((b) => b.onclick = () => abrir(EXERCICIOS.find((e) => e.id === b.dataset.id)));
+
+    const cq = conquistas(l);
+    $("conq-sub").textContent = `${cq.filter((c) => c.feita).length} de ${cq.length} desbloqueadas`;
+    $("conqs").innerHTML = cq.map((c) => `<div class="cq ${c.feita ? "feita" : ""}" title="${c.desc}"><span>${c.icone}</span><b>${c.nome}</b><small>${c.desc}</small></div>`).join("");
+
+    const ult = l.slice(-6).reverse();
+    $("hist").innerHTML = ult.length ? ult.map((r) => {
+      const e = EXERCICIOS.find((x) => x.id === r.ex) || { nome: "Ritual pré-reunião", icone: "🧘" };
+      const d = new Date(r.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+      return `<div><span>${e.icone} ${e.nome}<br><small>${d}</small></span><span class="n">${r.nota ?? "✓"}</span><small style="color:var(--ouro)">+${r.xp} XP</small></div>`;
+    }).join("") : '<div class="vazio">Nenhum treino ainda. Comece pelo Aquecimento de ritmo.</div>';
+  }
+
+  // ---------- Ritual ----------
+  let frase = "Estou animada!";
+  document.querySelectorAll("#frases .chip").forEach((c) => c.onclick = () => {
+    document.querySelectorAll("#frases .chip").forEach((x) => x.classList.toggle("on", x === c));
+    frase = c.dataset.f;
+  });
+  $("iniciar-ritual").onclick = () => {
+    const r = $("respiro"), b = $("iniciar-ritual");
+    b.disabled = true;
+    let ciclo = 0;
+    const passo = () => {
+      if (ciclo === 3) {
+        r.className = "respiro"; r.textContent = `Diga em voz alta: "${frase}"`;
+        setTimeout(() => {
+          r.textContent = "Pronta! 🚀"; b.disabled = false; b.textContent = "▶ Repetir ritual";
+          salvar({ ex: "ritual", data: new Date().toISOString(), xp: 20 }); desenharPagina();
+        }, 4000);
+        return;
+      }
+      r.className = "respiro inspira"; r.textContent = "Inspire…";
+      setTimeout(() => { r.className = "respiro solta"; r.textContent = "Solte o ar devagar…"; }, 4000);
+      setTimeout(() => { ciclo++; passo(); }, 10000);
+    };
+    passo();
+  };
+
+  // ---------- Estúdio: análise da fala ----------
+  let ex = null, estado = null;
+
+  function abrir(e) {
+    ex = e;
+    $("est-titulo").textContent = `${e.icone} ${e.nome}`;
+    $("est-foco").textContent = `Foco: ${e.foco} · ${e.seg} segundos`;
+    $("est-passos").innerHTML = e.passos.map((p) => `<li>${p}</li>`).join("");
+    $("est-leitura").innerHTML = e.leitura();
+    $("resultado").classList.remove("on");
+    $("transcricao").textContent = "A transcrição da sua fala aparece aqui.";
+    $("aviso").className = "aviso"; $("aviso").textContent = "Aperte o microfone e comece a falar.";
+    $("cron").textContent = `0:${String(e.seg).padStart(2, "0")}`;
+    zerarMedidores();
+    $("estudio").classList.add("on");
+    const temReconhecimento = "webkitSpeechRecognition" in window || "SpeechRecognition" in window;
+    $("nota-tecnica").textContent = temReconhecimento
+      ? "Tom, volume e pausas são medidos no seu computador. A transcrição usa o reconhecimento de voz do navegador, que pode limpar alguns \"éé\"."
+      : "Este navegador não transcreve fala: ritmo e vícios ficam indisponíveis. Use o Chrome para a experiência completa.";
+  }
+  $("fechar").onclick = () => { parar(false); $("estudio").classList.remove("on"); desenharPagina(); };
+
+  function zerarMedidores() {
+    ["m-ritmo", "m-variacao"].forEach((id) => { $(id).querySelector("b").textContent = "–"; $(id).className = "med"; });
+    $("m-vicios").querySelector("b").textContent = "0"; $("m-pausas").querySelector("b").textContent = "0";
+    $("m-final-txt").textContent = "Afirmações terminando firme: –";
+    $("vol").style.width = "0";
+    const ctx = $("canvas").getContext("2d"); ctx.clearRect(0, 0, 800, 200);
+  }
+
+  function novoEstado(demo) {
+    return {
+      demo, inicio: performance.now(), tons: [], dbs: [], traco: [], tempoFala: 0, emSilencio: true, silencioDesde: performance.now(),
+      pausas: 0, pausasLongas: 0, segmento: [], finais: 0, finaisFirmes: 0, textoFinal: "", textoInterino: "", ultimoAviso: 0, piso: 0.012,
+    };
+  }
+
+  function detectarTom(buf, sr) {
+    let rms = 0;
+    for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+    rms = Math.sqrt(rms / buf.length);
+    const minLag = Math.floor(sr / 400), maxLag = Math.floor(sr / 70);
+    let melhor = 0, melhorLag = -1;
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let s = 0, a = 0, b = 0;
+      for (let i = 0; i < buf.length - lag; i += 2) { s += buf[i] * buf[i + lag]; a += buf[i] * buf[i]; b += buf[i + lag] * buf[i + lag]; }
+      const c = s / Math.sqrt(a * b || 1);
+      if (c > melhor) { melhor = c; melhorLag = lag; }
+    }
+    return { rms, tom: melhor > 0.6 ? sr / melhorLag : -1 };
+  }
+
+  const mediana = (a) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+  const desvio = (a) => { if (a.length < 2) return 0; const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / a.length); };
+  const silabas = (t) => (t.toLowerCase().match(/[aeiouáéíóúâêôãõàü]+/g) || []).length;
+  const contar = (t, lista) => { const s = " " + t.toLowerCase().replace(/[.,!?;:]/g, " ") + " "; return lista.reduce((n, w) => n + (s.split(` ${w} `).length - 1), 0); };
+
+  function quadro(rms, tom) {
+    const e = estado, agora = performance.now(), dt = 0.05;
+    const falando = rms > e.piso;
+    $("vol").style.width = Math.min(100, rms * 900) + "%";
+    if (falando) {
+      if (e.emSilencio) {
+        const gap = (agora - e.silencioDesde) / 1000;
+        if (e.tempoFala > 0) {
+          if (gap < 0.5) e.tempoFala += gap;
+          else if (gap <= 3) e.pausas++;
+          else e.pausasLongas++;
+        }
+        e.emSilencio = false;
+      }
+      e.tempoFala += dt;
+      e.dbs.push(20 * Math.log10(rms));
+      if (tom > 0) { e.tons.push(tom); e.segmento.push(tom); }
+    } else if (!e.emSilencio) {
+      e.emSilencio = true; e.silencioDesde = agora;
+    }
+    if (e.emSilencio && e.segmento.length && agora - e.silencioDesde > 400) {
+      if (e.segmento.length >= 10) {
+        const fim = mediana(e.segmento.slice(-5)), antes = mediana(e.segmento.slice(-15, -5));
+        e.finais++;
+        if (12 * Math.log2(fim / antes) < -1) e.finaisFirmes++;
+      }
+      e.segmento = [];
+    }
+    e.traco.push(tom > 0 ? tom : null);
+    if (e.traco.length > 160) e.traco.shift();
+  }
+
+  function desenharTraco() {
+    const c = $("canvas"), ctx = c.getContext("2d"), t = estado.traco;
+    ctx.clearRect(0, 0, 800, 200);
+    ctx.strokeStyle = "rgba(255,255,255,.06)"; ctx.lineWidth = 1;
+    [50, 100, 150].forEach((y) => { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(800, y); ctx.stroke(); });
+    const base = mediana(estado.tons) || 180;
+    ctx.strokeStyle = "#3987e5"; ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath();
+    let aberto = false;
+    t.forEach((f, i) => {
+      if (f == null) { aberto = false; return; }
+      const st = 12 * Math.log2(f / base), x = (i / 159) * 800, y = 100 - st * 9;
+      if (!aberto) { ctx.moveTo(x, y); aberto = true; } else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  function atualizarMedidores() {
+    const e = estado, min = Math.max(e.tempoFala / 60, 0.05);
+    const texto = e.textoFinal + " " + e.textoInterino;
+    const ritmo = e.tempoFala > 3 ? silabas(texto) / e.tempoFala : 0;
+    const vicios = contar(texto, VICIOS) / min;
+    const variacao = e.tons.length > 20 ? desvio(e.tons.map((f) => 12 * Math.log2(f / mediana(e.tons)))) : 0;
+    const mr = $("m-ritmo");
+    if (ritmo) {
+      mr.querySelector("b").textContent = ritmo.toFixed(1);
+      mr.querySelector("i").style.left = Math.min(98, (ritmo / 8) * 100) + "%";
+      mr.className = "med " + (ritmo >= 3.8 && ritmo <= 4.8 ? "ok" : "alto");
+    }
+    $("m-vicios").querySelector("b").textContent = vicios.toFixed(1);
+    $("m-vicios").className = "med " + (vicios <= 5 ? "ok" : "alto");
+    if (variacao) { $("m-variacao").querySelector("b").textContent = variacao.toFixed(1); $("m-variacao").className = "med " + (variacao >= 2.5 ? "ok" : "alto"); }
+    $("m-pausas").querySelector("b").textContent = e.pausas;
+    $("m-final-txt").textContent = `Afirmações terminando firme: ${e.finais ? Math.round((e.finaisFirmes / e.finais) * 100) + "%" : "–"} (${e.finaisFirmes} de ${e.finais})`;
+    let t = $("transcricao"), marcado = e.textoFinal.replace(new RegExp(`\\b(${VICIOS.concat(INSEGURANCA).join("|")})\\b`, "gi"), "<mark>$1</mark>");
+    if (e.textoFinal || e.textoInterino) t.innerHTML = `${marcado} <span class="interino">${e.textoInterino}</span>`;
+
+    // Um aviso por vez, com intervalo.
+    const agora = performance.now(), seg = (agora - e.inicio) / 1000;
+    if (agora - e.ultimoAviso < 6000) return;
+    let msg = "";
+    if (ritmo > 5.5) msg = "Respira: o ritmo está acima da faixa.";
+    else if (ritmo && ritmo < 3 && seg > 10) msg = "Pode acelerar um pouco.";
+    else if (vicios > 5 && seg > 15) msg = "Atenção às muletas: troque o \"éé\" por silêncio.";
+    else if (variacao && variacao < 1.5 && seg > 15) msg = "Varie o tom: suba e desça a voz.";
+    if (msg) { $("aviso").className = "aviso on"; $("aviso").textContent = msg; e.ultimoAviso = agora; setTimeout(() => { if ($("aviso").textContent === msg) { $("aviso").className = "aviso"; $("aviso").textContent = "Continue…"; } }, 3500); }
+  }
+
+  let audio = null, reconhecedor = null, laco = null;
+
+  async function comecar(demo) {
+    estado = novoEstado(demo);
+    zerarMedidores();
+    $("resultado").classList.remove("on");
+    $("transcricao").textContent = "Ouvindo…";
+    $("gravar").classList.add("ativo"); $("gravar").textContent = "■";
+    $("aviso").className = "aviso"; $("aviso").textContent = "Falando… um aviso aparece aqui só quando precisar.";
+
+    if (!demo) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const fonte = ctx.createMediaStreamSource(stream), analisador = ctx.createAnalyser();
+        analisador.fftSize = 2048; fonte.connect(analisador);
+        audio = { stream, ctx, analisador, buf: new Float32Array(2048) };
+      } catch {
+        $("aviso").className = "aviso on"; $("aviso").textContent = "Não consegui acessar o microfone. Libere a permissão no navegador.";
+        parar(false); return;
+      }
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SR) {
+        reconhecedor = new SR(); reconhecedor.lang = "pt-BR"; reconhecedor.continuous = true; reconhecedor.interimResults = true;
+        reconhecedor.onresult = (ev) => {
+          let interino = "";
+          for (let i = ev.resultIndex; i < ev.results.length; i++) {
+            if (ev.results[i].isFinal) estado.textoFinal += " " + ev.results[i][0].transcript.trim();
+            else interino += ev.results[i][0].transcript;
+          }
+          estado.textoInterino = interino;
+        };
+        reconhecedor.onend = () => { if (estado && laco) try { reconhecedor.start(); } catch {} };
+        try { reconhecedor.start(); } catch {}
+      }
+    }
+
+    const falaDemo = "Olha, o que a gente faz é simples né. Primeiro eu entendo quem é o seu cliente ideal. Depois eu monto anúncios que falam direto com essa pessoa. E toda semana eu te mostro o resultado.".split(" ");
+    let palavra = 0, tomDemo = 190, t = 0;
+    laco = setInterval(() => {
+      t++;
+      if (demo) {
+        const fase = t % 50, falando = fase < 32;
+        if (fase === 0) tomDemo = 200 + Math.random() * 30;
+        tomDemo += (Math.random() - 0.5) * 22 - (fase > 22 ? 7 : 0);
+        tomDemo = Math.max(140, Math.min(260, tomDemo));
+        quadro(falando ? 0.05 + Math.random() * 0.06 : 0.002, falando ? tomDemo : -1);
+        if (t % 6 === 0 && palavra < falaDemo.length) estado.textoFinal += " " + falaDemo[palavra++];
+      } else {
+        audio.analisador.getFloatTimeDomainData(audio.buf);
+        const { rms, tom } = detectarTom(audio.buf, audio.ctx.sampleRate);
+        if (t < 10) estado.piso = Math.max(0.012, rms * 3);
+        quadro(rms, tom);
+      }
+      desenharTraco();
+      if (t % 4 === 0) atualizarMedidores();
+      const resta = Math.max(0, ex.seg - Math.floor((performance.now() - estado.inicio) / 1000));
+      $("cron").textContent = `0:${String(resta).padStart(2, "0")}`;
+      if (resta === 0) parar(true);
+    }, 50);
+  }
+
+  function parar(concluir) {
+    clearInterval(laco); laco = null;
+    if (reconhecedor) { reconhecedor.onend = null; try { reconhecedor.stop(); } catch {} reconhecedor = null; }
+    if (audio) { audio.stream.getTracks().forEach((t) => t.stop()); audio.ctx.close(); audio = null; }
+    $("gravar").classList.remove("ativo"); $("gravar").textContent = "🎙️";
+    if (concluir && estado) mostrarResultado();
+  }
+
+  $("gravar").onclick = () => laco ? parar(true) : comecar(false);
+  $("demo").onclick = () => { if (!laco) comecar(true); };
+
+  function faixa(v, min, max, larg) {
+    if (v >= min && v <= max) return 100;
+    const d = v < min ? min - v : v - max;
+    return Math.max(0, 100 - (d / larg) * 100);
+  }
+
+  function mostrarResultado() {
+    const e = estado;
+    atualizarMedidores();
+    const min = Math.max(e.tempoFala / 60, 0.05), texto = e.textoFinal;
+    const r = {
+      ex: ex.id, data: new Date().toISOString(),
+      ritmo: e.tempoFala > 3 ? +(silabas(texto) / e.tempoFala).toFixed(2) : 0,
+      viciosMin: +(contar(texto, VICIOS) / min).toFixed(1),
+      inseguranca: contar(texto, INSEGURANCA),
+      variacao: e.tons.length > 20 ? +desvio(e.tons.map((f) => 12 * Math.log2(f / mediana(e.tons)))).toFixed(1) : 0,
+      volume: +desvio(e.dbs).toFixed(1),
+      pausas: e.pausas, pausasLongas: e.pausasLongas,
+      finalFirme: e.finais ? +(e.finaisFirmes / e.finais).toFixed(2) : 0,
+    };
+    const notas = {
+      ritmo: r.ritmo ? faixa(r.ritmo, 3.8, 4.8, 2) : 50,
+      vicios: faixa(r.viciosMin, 0, 5, 7),
+      variacao: faixa(r.variacao, 2.5, 8, 2.5),
+      pausas: Math.min(100, r.pausas * 34),
+      final: r.finalFirme * 100,
+      volume: faixa(r.volume, 4, 14, 4),
+    };
+    notas.geral = (notas.ritmo + notas.vicios + notas.variacao) / 3;
+    const principal = notas[ex.metrica];
+    r.nota = Math.round(principal * 0.6 + ((notas.ritmo + notas.vicios + notas.variacao) / 3) * 0.4 - r.pausasLongas * 3);
+    r.nota = Math.max(0, Math.min(100, r.nota));
+    r.xp = 30 + Math.round(r.nota / 2);
+
+    const antes = conquistas(carregar()).filter((c) => c.feita).map((c) => c.nome);
+    salvar(r);
+    const novas = conquistas(carregar()).filter((c) => c.feita && !antes.includes(c.nome));
+
+    const linha = (rot, valor, meta, ok) => `<div><span>${rot}<br><small>${meta}</small></span><b>${valor}</b><span>${ok ? "✅" : "⚠️"}</span></div>`;
+    const recomendacoes = {
+      ritmo: r.ritmo > 4.8 ? ["Desacelere nos números e nos nomes.", "Fala rápida demais faz o cliente parar de analisar. Respire entre as ideias e deixe os números com espaço."]
+        : ["Ganhe um pouco de energia.", "Fala muito lenta tende a parecer menos segura. Tente encurtar as frases e emendar as ideias sem pausas longas."],
+      vicios: ["Troque o \"éé\" por silêncio.", "Até 5 vícios por minuto não prejudicam a imagem; acima disso, o cliente percebe. Quando sentir que vai travar, feche a boca e pause."],
+      variacao: ["Suba e desça a voz.", "Variação de tom é uma das marcas da fala carismática. Repita o exercício Montanha-russa exagerando a ênfase."],
+      pausas: ["Segure o silêncio depois da pergunta.", "A pausa dá tempo para o cliente pensar e mostra que você quer ouvir a resposta. Conte \"um, dois\" mentalmente."],
+      final: ["Coloque ponto final com a voz.", "Afirmações que terminam com o tom subindo soam como pergunta e passam dúvida. Deixe a última sílaba cair."],
+      volume: ["Use o volume como marca-texto.", "Variar o volume nos pontos-chave soa como confiança e aumenta a persuasão. Suba só na palavra que importa."],
+    };
+    const fraca = Object.entries({ ritmo: notas.ritmo, vicios: notas.vicios, variacao: notas.variacao, pausas: ex.metrica === "pausas" ? notas.pausas : 100, final: ex.metrica === "final" ? notas.final : 100, volume: ex.metrica === "volume" ? notas.volume : 100 })
+      .sort((a, b) => a[1] - b[1])[0][0];
+    const [titulo, porque] = recomendacoes[fraca];
+
+    $("resultado").innerHTML = `
+      <div class="top">
+        <div class="nota-grande" style="--p:${r.nota}"><span>${r.nota}</span></div>
+        <div><span class="chip">+${r.xp} XP</span><h2 style="margin:8px 0 4px;font-size:22px">${r.nota >= 80 ? "Excelente!" : r.nota >= 60 ? "Bom treino!" : "Bora de novo?"}</h2>
+        <div style="color:var(--texto-2)">${ex.nome}${novas.length ? ` · <span style="color:var(--ouro)">🏆 ${novas.map((c) => c.nome).join(", ")}</span>` : ""}</div></div>
+      </div>
+      <div class="linhas-res">
+        ${linha("Ritmo", r.ritmo ? r.ritmo.toFixed(1) + " sílabas/s" : "sem transcrição", "faixa: 3,8 a 4,8", notas.ritmo >= 80)}
+        ${linha("Vícios de linguagem", r.viciosMin + " por minuto", "meta: até 5", r.viciosMin <= 5)}
+        ${linha("Variação de tom", r.variacao + " semitons", "acima de 2,5", r.variacao >= 2.5)}
+        ${linha("Pausas boas", r.pausas + (r.pausasLongas ? ` (${r.pausasLongas} longas demais)` : ""), "de 0,5 a 3 segundos", r.pausas >= 2 && !r.pausasLongas)}
+        ${ex.metrica === "final" ? linha("Final firme", Math.round(r.finalFirme * 100) + "%", "meta: 80%", r.finalFirme >= 0.8) : ""}
+        ${ex.metrica === "volume" ? linha("Variação de volume", r.volume + " dB", "de 4 a 14", notas.volume >= 80) : ""}
+        ${r.inseguranca ? linha("Palavras de insegurança", r.inseguranca, "\"acho\", \"talvez\"", false) : ""}
+      </div>
+      <div class="dica-res"><b>💡 ${titulo}</b>${porque}</div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+        <button class="botao-principal" id="repetir">Repetir exercício</button>
+        <button class="botao-sec" id="voltar-lista">Escolher outro</button>
+      </div>`;
+    $("resultado").classList.add("on");
+    $("resultado").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("repetir").onclick = () => abrir(ex);
+    $("voltar-lista").onclick = () => { $("estudio").classList.remove("on"); desenharPagina(); };
+  }
+
+  desenharPagina();
+</script>
+</body>
+</html>
