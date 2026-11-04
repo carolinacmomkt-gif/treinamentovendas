@@ -122,7 +122,7 @@ Protótipo navegável em `prototipo/sala.html`.
 ### Retratos dos personagens (estilo animação de cinema)
 - Os 9 personagens têm retratos gerados no Google Flow (modelo Nano Banana 2.1), em `prototipo/personagens/` (versões `-a` e `-b` de cada um). Cada retrato já traz o cenário do negócio ao fundo.
 - Na sala, o retrato ocupa o palco como um vídeo, com respiração, leve movimento com o mouse e borda verde quando o cliente fala. Na galeria, na página inicial e no histórico aparecem como miniaturas.
-- Para a boca se mexer junto com a voz, o próximo passo é um serviço de avatar falante (D-ID, HeyGen ou Simli) usando esses retratos.
+- Para a boca se mexer junto com a voz: serviço de avatar falante usando esses retratos. Comparação e recomendação em [conteudo/avatar-falante.md](conteudo/avatar-falante.md) (testar Runway Characters e Anam primeiro).
 
 ### Personagens e cenários em 3D (reserva)
 - Os personagens são montados em 3D no navegador (Three.js, `prototipo/avatar3d.js`) a partir das características de cada um. Não há modelos de terceiros, então não há licença a pagar.
