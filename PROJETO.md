@@ -234,6 +234,18 @@ Cada conquista tem bronze, prata e ouro (ex.: fazer algo 1, 5 e 20 vezes).
 - **Leitor de gente:** fechou com os 4 perfis DISC
 - **Todas as vozes:** treinou com todos os personagens
 
+### Página inicial (painel)
+Protótipo em `prototipo/index.html`. Mostra:
+- Saudação, sequência de dias e XP da semana.
+- Nível atual com barra de XP até o próximo nível.
+- Pontos (XP), reuniões feitas, **taxa de fechamento** e nota média, cada um comparado com a semana passada.
+- Gráfico da evolução da nota (vendas ou comunicação), com detalhes ao passar o mouse.
+- "Começar treino": escolhe personagem, tipo de reunião e dificuldade, e entra direto na sala.
+- Taxa de fechamento por nicho, desafio da semana e ponto de atenção.
+- Conquistas com anel de progresso e histórico de reuniões filtrável por resultado.
+
+Ao encerrar uma reunião na sala, ela entra no histórico e o painel se atualiza.
+
 ### Evolução
 - Lista de treinos com data, personagem, nicho, modo e notas.
 - Gráfico de evolução da nota de vendas, da nota de comunicação e de cada critério.

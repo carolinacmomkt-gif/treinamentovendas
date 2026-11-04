@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sala de Treino</title>
+<link rel="stylesheet" href="estilo.css">
 <style>
   :root {
     --fundo: #0f1115; --painel: #1a1d24; --painel-2: #232733; --texto: #eef0f4; --suave: #9aa1b2;
@@ -11,8 +12,29 @@
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
-  body { margin: 0; background: var(--fundo); color: var(--texto); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  button { font: inherit; color: inherit; }
+  .voltar { display: inline-flex; align-items: center; gap: 6px; color: var(--suave); font-size: 13px; margin-right: 14px; padding: 6px 10px; border-radius: 8px; }
+  .voltar:hover { background: var(--painel-2); color: var(--texto); }
+  .topo > div:first-child { display: flex; align-items: center; }
+  .palco { background: radial-gradient(600px 400px at 50% 40%, rgba(124,92,255,.12), transparent 70%), var(--painel); border: 1px solid rgba(255,255,255,.06); }
+  .cliente { box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+  .controles { background: rgba(20,24,33,.7); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,.06); }
+  .ctl { transition: transform .15s, background .15s; }
+  .ctl:hover { transform: translateY(-2px); background: #2f3546; }
+
+  /* Resumo ao encerrar */
+  .resumo { position: fixed; inset: 0; background: rgba(8,9,12,.85); backdrop-filter: blur(6px); display: none; place-items: center; z-index: 30; padding: 16px; }
+  .resumo.on { display: grid; }
+  .resumo .janela { width: min(460px, 100%); padding: 28px; text-align: center; animation: entrar .4s cubic-bezier(.2,.8,.2,1) forwards; opacity: 0; transform: translateY(12px); }
+  .resumo .foto { width: 84px; height: 84px; border-radius: 22px; overflow: hidden; margin: 0 auto 12px; }
+  .resumo .foto svg { width: 100%; height: 100%; display: block; }
+  .resumo h2 { margin: 6px 0 4px; }
+  .resumo .numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+  .resumo .numeros div { background: var(--superficie-2); border-radius: 12px; padding: 12px 6px; }
+  .resumo .numeros b { display: block; font-size: 24px; }
+  .resumo .numeros small { color: var(--texto-3); }
+  .resumo .novas { color: var(--ouro); font-weight: 600; margin-bottom: 16px; min-height: 1em; }
+  .resumo .acoes { display: grid; gap: 10px; }
+  .resumo .secundario { height: 46px; border-radius: 12px; border: 1px solid var(--borda-forte); background: none; font-weight: 600; }
   .app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
 
   /* Barra superior */
@@ -100,12 +122,12 @@
   .cartao small { color: var(--suave); display: block; }
 
   /* Fechamento */
-  .fechou { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 20; }
-  .fechou .caixa { background: linear-gradient(135deg, #14532d, #166534); border: 2px solid var(--ouro); border-radius: 20px; padding: 28px 40px; text-align: center; transform: scale(.6); opacity: 0; transition: transform .35s cubic-bezier(.2,1.6,.4,1), opacity .25s; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
-  .fechou.on .caixa { transform: scale(1); opacity: 1; }
-  .fechou .caixa b { display: block; font-size: 30px; }
-  .fechou .caixa span { color: #bbf7d0; }
-  .fechou .xp { margin-top: 10px; font-size: 20px; color: var(--ouro); font-weight: 700; }
+  .celebracao { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 20; }
+  .celebracao .caixa { background: linear-gradient(135deg, #14532d, #166534); border: 2px solid var(--ouro); border-radius: 20px; padding: 28px 40px; text-align: center; transform: scale(.6); opacity: 0; transition: transform .35s cubic-bezier(.2,1.6,.4,1), opacity .25s; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .celebracao.on .caixa { transform: scale(1); opacity: 1; }
+  .celebracao .caixa b { display: block; font-size: 30px; }
+  .celebracao .caixa span { color: #bbf7d0; }
+  .celebracao .xp { margin-top: 10px; font-size: 20px; color: var(--ouro); font-weight: 700; }
   .moeda { position: fixed; top: -40px; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff3b0, var(--ouro) 55%, #a16207); border: 2px solid #a16207; z-index: 19; pointer-events: none; animation: cair linear forwards; }
   @keyframes cair { to { transform: translateY(110vh) rotate(720deg); } }
 
@@ -123,8 +145,11 @@
 <div class="app">
   <header class="topo">
     <div>
-      <div class="titulo">Reunião de diagnóstico</div>
-      <div class="sub" id="sub"></div>
+      <a class="voltar" href="index.html">← Início</a>
+      <div>
+        <div class="titulo" id="titulo">Reunião de diagnóstico</div>
+        <div class="sub" id="sub"></div>
+      </div>
     </div>
     <div class="tempo" id="tempo">00:00</div>
   </header>
@@ -187,14 +212,38 @@
   <div class="cartoes" id="cartoes"></div>
 </div>
 
-<div class="fechou" id="fechou"><div class="caixa"><b>Contrato fechado!</b><span id="fechou-txt"></span><div class="xp">+250 XP</div></div></div>
+<div class="resumo" id="resumo">
+  <div class="janela cartao-base">
+    <div class="foto" id="resumo-foto"></div>
+    <span class="status" id="resumo-status"></span>
+    <h2 id="resumo-titulo"></h2>
+    <p class="sub" id="resumo-sub" style="color:var(--texto-2);margin:0"></p>
+    <div class="numeros">
+      <div><b id="resumo-nota"></b><small>nota de vendas</small></div>
+      <div><b id="resumo-com"></b><small>comunicação</small></div>
+      <div><b id="resumo-xp" style="color:var(--ouro)"></b><small>XP ganho</small></div>
+    </div>
+    <div class="novas" id="resumo-novas"></div>
+    <div class="acoes">
+      <a class="botao-principal" href="index.html">Ver meu painel</a>
+      <button class="secundario" id="de-novo">Treinar de novo</button>
+    </div>
+  </div>
+</div>
+
+<div class="celebracao" id="fechou"><div class="caixa"><b>Contrato fechado!</b><span id="fechou-txt"></span><div class="xp">+250 XP</div></div></div>
 
 <script src="personagens.js"></script>
+<script src="dados.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
   const ETAPAS = ["Abertura", "Conexão", "Diagnóstico", "Apresentação", "Objeções", "Fechamento"];
-  let atual = PERSONAGENS[2];
-  let nota = 50, etapa = 0, temperatura = 20, inicio = Date.now();
+  const params = new URLSearchParams(location.search);
+  const modo = DADOS.MODOS[params.get("modo")] ? params.get("modo") : "diagnostico";
+  const dificuldade = ["facil", "medio", "dificil"].includes(params.get("dif")) ? params.get("dif") : "medio";
+  let atual = PERSONAGENS.find((p) => p.id === params.get("p")) || PERSONAGENS[2];
+  let nota = 50, etapa = 0, temperatura = 20, inicio = Date.now(), fechouContrato = false, perguntas = 0;
+  $("titulo").textContent = `Reunião · ${DADOS.MODOS[modo]} · ${{ facil: "Fácil", medio: "Médio", dificil: "Difícil" }[dificuldade]}`;
 
   function escolher(p) {
     atual = p;
@@ -202,7 +251,7 @@
     $("etiqueta").innerHTML = `${p.nome} <small>· ${p.nicho}</small>`;
     $("sub").textContent = `${p.nome}, ${p.idade} anos · ${p.nicho} · perfil ${p.perfil} · voz ${p.voz}`;
     $("aba-transcricao").innerHTML = "";
-    nota = 50; etapa = 0; temperatura = 20; inicio = Date.now();
+    nota = 50; etapa = 0; temperatura = 20; inicio = Date.now(); fechouContrato = false; perguntas = 0;
     $("alertas").innerHTML = "";
     atualizarPlacar(0);
     $("galeria").classList.remove("on");
@@ -294,7 +343,7 @@
   function fecharContrato() {
     tocarCaixa();
     chuvaDeMoedas();
-    nota = Math.min(100, nota + 12); etapa = 5; temperatura = 96;
+    nota = Math.min(100, nota + 12); etapa = 5; temperatura = 96; fechouContrato = true;
     atualizarPlacar(12);
     alerta("Fechamento com data marcada. Contrato fechado!", true);
     $("fechou-txt").textContent = `${atual.nome} · ${atual.nicho}`;
@@ -315,7 +364,28 @@
     } catch { alerta("Não foi possível abrir a câmera."); }
   };
   $("trocar").onclick = () => $("galeria").classList.add("on");
-  $("sair").onclick = () => alert("Aqui abre o relatório final da reunião.");
+  $("sair").onclick = () => {
+    const antes = DADOS.conquistas(DADOS.carregar()).filter((c) => c.feita).map((c) => c.id);
+    const resultado = fechouContrato ? "fechou" : nota >= 60 ? "proximo" : "perdeu";
+    const r = DADOS.registrar({
+      personagem: atual.id, modo, dificuldade, nota, comunicacao: Math.min(100, nota + 3), resultado,
+      duracao: Math.max(1, Math.round((Date.now() - inicio) / 60000)), perguntas, vicios: 2, inseguranca: 0,
+      descobriu: Math.min(4, perguntas), cedeuDesconto: false,
+    });
+    const novas = DADOS.conquistas(DADOS.carregar()).filter((c) => c.feita && !antes.includes(c.id));
+    const res = DADOS.RESULTADOS[resultado];
+    $("resumo-foto").innerHTML = desenharPersonagem(atual);
+    $("resumo-status").className = `status ${resultado}`;
+    $("resumo-status").textContent = `${res.icone} ${res.rotulo}`;
+    $("resumo-titulo").textContent = { fechou: "Contrato fechado!", proximo: "Próximo passo marcado", perdeu: "Essa não foi" }[resultado];
+    $("resumo-sub").textContent = `${atual.nome} · ${atual.nicho} · ${DADOS.MODOS[modo]}`;
+    $("resumo-nota").textContent = r.nota;
+    $("resumo-com").textContent = r.comunicacao;
+    $("resumo-xp").textContent = "+" + r.xp;
+    $("resumo-novas").textContent = novas.length ? `🏆 Nova conquista: ${novas.map((c) => c.nome).join(", ")}` : "";
+    $("resumo").classList.add("on");
+  };
+  $("de-novo").onclick = () => { $("resumo").classList.remove("on"); escolher(atual); };
   $("galeria").onclick = (e) => { if (e.target.id === "galeria") $("galeria").classList.remove("on"); };
 
   document.querySelectorAll(".abas button").forEach((b) => b.onclick = () => {
@@ -346,7 +416,7 @@
   $("demo-fala").onclick = () => clienteFala(atual.fala);
   $("demo-nota").onclick = () => {
     transcrever("Você", "Entendi. E hoje, quanto isso te custa por mês em clientes que não chegam?");
-    nota = Math.min(100, nota + 6); etapa = Math.max(etapa, 2); temperatura = Math.min(90, temperatura + 15);
+    nota = Math.min(100, nota + 6); etapa = Math.max(etapa, 2); temperatura = Math.min(90, temperatura + 15); perguntas++;
     atualizarPlacar(6);
     alerta("Boa pergunta de diagnóstico: explorou o custo do problema.", true);
   };
@@ -359,7 +429,7 @@
 
   montarGaleria("");
   escolher(atual);
-  $("galeria").classList.add("on");
+  if (!params.get("p")) $("galeria").classList.add("on");
 </script>
 </body>
 </html>
