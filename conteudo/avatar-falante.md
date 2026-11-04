@@ -41,7 +41,9 @@ A isso soma-se o ElevenLabs (voz e conversa) e o Claude (avaliação).
 | Manteve o estilo animação | Sim. Durante a chamada o rosto fica um pouco mais realista que o retrato, mas continua estilizado | Sim, também durante a chamada, com expressões fortes (franze a testa, abre bem a boca) |
 | Português | Primeira fala dita e transcrita em português | A testar |
 | Observações | Plano grátis: 20 créditos (cerca de 1 min), marca d'água "AI-generated with runway", aviso de "conexão instável" durante a chamada; a sessão termina sozinha quando os créditos acabam, voz pronta do Runway (não ElevenLabs), grava as conversas na conta | 30 min grátis por mês; marca d'água "Anam AI avatar"; dá para importar vozes do ElevenLabs |
-| Opinião do Gustavo | Gostou | A preencher |
+| Opinião do Gustavo | **Escolhido** | Testado, não escolhido |
+
+**Decisão (04/11/2026): Runway Characters.** Plano de integração em [integracao-runway.md](integracao-runway.md).
 
 ## Fontes
 
