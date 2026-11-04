@@ -133,7 +133,7 @@
       $("legenda").classList.add("on");
       clearTimeout(espera);
       // Espera um silêncio curto para saber que você terminou de falar.
-      espera = setTimeout(enviarFalaDoVendedor, interino ? 2200 : 1300);
+      espera = setTimeout(enviarFalaDoVendedor, interino ? 1500 : 800);
     };
     r.onend = () => { if (ouvindo && !ocupado) try { r.start(); } catch {} };
     r.onerror = (e) => { if (e.error === "not-allowed") { alerta("Libere o microfone no navegador para conversar."); pararDeOuvir(); } };

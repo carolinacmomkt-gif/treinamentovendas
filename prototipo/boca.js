@@ -219,7 +219,7 @@ export async function montar(container, personagem) {
   try { pts = await pontosDoRosto(img, personagem.foto); } catch (e) { console.warn("Rosto não detectado; boca sem animação.", e); }
   const pintor = criarPintor(canvas, img);
 
-  let abertura = 0, fixo = null, ativo = true, fonteVolume = null, ritmoAte = 0, audioAtual = null;
+  let abertura = 0, fixo = null, ativo = true, fonteVolume = null, ritmoAte = 0, audioAtual = null, falaCancelada = false;
   const amostras = new Uint8Array(1024);
   const inicio = performance.now();
 
@@ -259,21 +259,33 @@ export async function montar(container, personagem) {
   }
   desenhar();
 
-  async function falarComGemini(texto) {
-    const resp = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto, voz: personagem.voz }) });
+  // Uma voz por fala: dividir em frases quase não adianta (a primeira demora o mesmo)
+  // e cria pausas entre as frases, além de gastar o limite grátis mais rápido.
+  async function vozDaFrase(frase) {
+    const resp = await fetch("/api/voz", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ texto: frase, voz: personagem.voz }) });
     if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).erro || `voz indisponível (${resp.status})`);
-    const url = URL.createObjectURL(await resp.blob());
-    const audio = new Audio(url);
-    audioAtual = audio;
+    return audioPronto().decodeAudioData(await resp.arrayBuffer());
+  }
+  async function falarComGemini(texto) {
     const ac = audioPronto();
+    const pedidos = [vozDaFrase(texto)];
+    pedidos.forEach((p) => p.catch(() => {}));
     const analisador = ac.createAnalyser();
     analisador.fftSize = 1024;
-    const fonte = ac.createMediaElementSource(audio);
-    fonte.connect(analisador); analisador.connect(ac.destination);
-    fonteVolume = analisador;
-    await new Promise((ok) => { audio.onended = audio.onerror = ok; audio.play().catch(ok); });
-    fonteVolume = null; audioAtual = null;
-    URL.revokeObjectURL(url);
+    analisador.connect(ac.destination);
+    let tocou = false;
+    try {
+      for (const pedido of pedidos) {
+        let buffer;
+        try { buffer = await pedido; } catch (e) { if (!tocou) throw e; break; }
+        if (!ativo || falaCancelada) break;
+        const fonte = ac.createBufferSource();
+        fonte.buffer = buffer;
+        fonte.connect(analisador);
+        fonteVolume = analisador; audioAtual = fonte; tocou = true;
+        await new Promise((ok) => { fonte.onended = ok; fonte.start(); });
+      }
+    } finally { fonteVolume = null; audioAtual = null; analisador.disconnect(); }
   }
 
   function falarNavegador(texto) {
@@ -298,11 +310,11 @@ export async function montar(container, personagem) {
     fonte: null,
     // Fala com a voz do Gemini; se não der, usa a voz do navegador.
     async falar(texto) {
-      audioPronto();
+      audioPronto(); falaCancelada = false;
       try { await falarComGemini(texto); retrato.fonte = "gemini"; }
       catch (e) { console.warn("Usando a voz do navegador:", e.message); retrato.fonte = "navegador"; retrato.motivo = e.message; await falarNavegador(texto); }
     },
-    calar() { audioAtual?.pause(); speechSynthesis?.cancel(); ritmoAte = 0; fonteVolume = null; },
+    calar() { falaCancelada = true; try { audioAtual?.stop(); } catch {} speechSynthesis?.cancel(); ritmoAte = 0; fonteVolume = null; },
     moverBoca(ms) { ritmoAte = performance.now() + ms; },
     detectou: () => !!pts,
     fixar(valor) { fixo = valor; },

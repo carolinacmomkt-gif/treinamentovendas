@@ -8,6 +8,7 @@ A chave fica só no arquivo .env deste computador.
 Uso, na pasta do projeto:  python servidor.py   (abre em http://127.0.0.1:5173)
 """
 import base64
+import concurrent.futures
 import hashlib
 import io
 import json
@@ -22,8 +23,15 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent
 CACHE = RAIZ / ".cache-voz"
 GEMINI = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
-MODELOS_GEMINI = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite", "gemini-flash-lite-latest", "gemini-2.0-flash"]
-MODELOS_VOZ = ["gemini-2.5-flash-preview-tts", "gemini-2.5-flash-tts"]
+# Modelos rápidos primeiro. O valor é o quanto o modelo "pensa" antes de responder (o mínimo possível).
+MODELOS_GEMINI = {
+    "gemini-3-flash-preview": {"thinkingLevel": "minimal"},  # o mais rápido nos testes (~1,5 s)
+    "gemini-3.5-flash-lite": {"thinkingLevel": "minimal"},
+    "gemini-flash-lite-latest": {"thinkingLevel": "minimal"},
+    "gemini-3.8-flash": {"thinkingLevel": "low"},
+    "gemini-2.5-flash": {"thinkingBudget": 0},
+}
+MODELOS_VOZ = ["gemini-3.8-flash-lite-tts", "gemini-2.5-flash-preview-tts", "gemini-3.8-flash-tts"]
 
 # Cada voz do projeto vira uma voz do Gemini com perfil parecido, mais um jeito de falar.
 VOZES = {
@@ -44,19 +52,27 @@ def ler_chave(nome="GEMINI_API_KEY"):
     return os.environ.get(nome, "")
 
 
-def chamar_gemini(modelos, corpo, chave, timeout=40):
-    """Tenta os modelos em ordem; pula os que não existem (404), estão sem cota (429) ou sobrecarregados (5xx)."""
-    ultimo_erro = None
-    for modelo in dict.fromkeys(modelos):
-        req = urllib.request.Request(GEMINI.format(modelo), data=json.dumps(corpo(modelo)).encode(),
-                                     headers={"x-goog-api-key": chave, "Content-Type": "application/json"})
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                return json.loads(resp.read())
-        except urllib.error.HTTPError as e:
-            ultimo_erro = e
-            if e.code not in (404, 429, 500, 503):
-                raise
+def chamar_um(modelo, corpo, chave, timeout):
+    req = urllib.request.Request(GEMINI.format(modelo), data=json.dumps(corpo(modelo)).encode(),
+                                 headers={"x-goog-api-key": chave, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read())
+
+
+def chamar_gemini(modelos, corpo, chave, timeout=15, juntos=1):
+    """Tenta os modelos em ordem; pula os que falham (fora do ar, sem cota, sobrecarregados, lentos).
+    Com juntos=2, pede aos dois primeiros ao mesmo tempo e fica com a resposta que chegar antes."""
+    modelos, ultimo_erro = list(dict.fromkeys(modelos)), None
+    while modelos:
+        lote, modelos = modelos[:juntos], modelos[juntos:]
+        ex = concurrent.futures.ThreadPoolExecutor(len(lote))
+        pedidos = [ex.submit(chamar_um, m, corpo, chave, timeout) for m in lote]
+        ex.shutdown(wait=False)  # não espera o modelo mais lento terminar
+        for feito in concurrent.futures.as_completed(pedidos):
+            try:
+                return feito.result()
+            except Exception as e:  # noqa: BLE001 - tenta o próximo modelo
+                ultimo_erro = e
     raise ultimo_erro
 
 
@@ -115,15 +131,15 @@ def responder_cliente(pedido):
         conteudo.insert(0, {"role": "user", "parts": [{"text": "(O vendedor entrou na reunião.)"}]})
 
     def corpo(modelo):
-        config = {"temperature": 0.9, "maxOutputTokens": 220}
-        if modelo.startswith("gemini-2.5") or modelo == "gemini-flash-latest":
-            config["thinkingConfig"] = {"thinkingBudget": 0}  # resposta rápida, sem "pensar" antes
+        config = {"temperature": 0.9, "maxOutputTokens": 400}
+        if MODELOS_GEMINI.get(modelo):
+            config["thinkingConfig"] = MODELOS_GEMINI[modelo]  # resposta rápida, quase sem "pensar" antes
         return {"systemInstruction": {"parts": [{"text": instrucoes_cliente(pedido)}]}, "contents": conteudo, "generationConfig": config}
 
-    modelos = [ler_chave("GEMINI_MODEL") or MODELOS_GEMINI[0]] + MODELOS_GEMINI
-    dados = chamar_gemini(modelos, corpo, chave)
+    modelos = [m for m in [ler_chave("GEMINI_MODEL")] if m] + list(MODELOS_GEMINI)
+    dados = chamar_gemini(modelos, corpo, chave, timeout=12, juntos=2)
     partes = dados["candidates"][0]["content"]["parts"]
-    return " ".join(x.get("text", "") for x in partes).strip()
+    return " ".join(x.get("text", "") for x in partes if not x.get("thought")).strip()
 
 
 # ---------- voz ----------
@@ -132,19 +148,19 @@ def falar(texto, apelido):
     chave = ler_chave()
     if not chave:
         raise PermissionError("Falta GEMINI_API_KEY no arquivo .env")
-    voz, jeito = VOZES[apelido]
-    arquivo = CACHE / (hashlib.sha1(f"{voz}|{jeito}|{texto}".encode()).hexdigest() + ".wav")
+    voz, _jeito = VOZES[apelido]
+    arquivo = CACHE / (hashlib.sha1(f"v2|{voz}|{texto}".encode()).hexdigest() + ".wav")
     if arquivo.exists():
         return arquivo.read_bytes()
 
     def corpo(_modelo):
         return {
-            "contents": [{"parts": [{"text": f"Fale em português do Brasil, {jeito}, como numa conversa natural: {texto}"}]}],
+            "contents": [{"parts": [{"text": texto}]}],  # só a fala: instruções junto seriam lidas em voz alta
             "generationConfig": {"responseModalities": ["AUDIO"],
                                  "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voz}}}},
         }
 
-    dados = chamar_gemini(MODELOS_VOZ, corpo, chave, timeout=60)
+    dados = chamar_gemini(MODELOS_VOZ, corpo, chave, timeout=12)
     parte = dados["candidates"][0]["content"]["parts"][0]["inlineData"]
     pcm = base64.b64decode(parte["data"])
     taxa = int((parte.get("mimeType", "").split("rate=") + ["24000"])[1].split(";")[0] or 24000)
