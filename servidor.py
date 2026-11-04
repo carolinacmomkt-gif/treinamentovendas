@@ -22,7 +22,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent
 CACHE = RAIZ / ".cache-voz"
 GEMINI = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
-MODELOS_GEMINI = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash"]
+MODELOS_GEMINI = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite", "gemini-flash-lite-latest", "gemini-2.0-flash"]
 MODELOS_VOZ = ["gemini-2.5-flash-preview-tts", "gemini-2.5-flash-tts"]
 
 # Cada voz do projeto vira uma voz do Gemini com perfil parecido, mais um jeito de falar.
@@ -45,9 +45,9 @@ def ler_chave(nome="GEMINI_API_KEY"):
 
 
 def chamar_gemini(modelos, corpo, chave, timeout=40):
-    """Tenta os modelos em ordem; pula os que não existem mais (404)."""
+    """Tenta os modelos em ordem; pula os que não existem (404), estão sem cota (429) ou sobrecarregados (5xx)."""
     ultimo_erro = None
-    for modelo in modelos:
+    for modelo in dict.fromkeys(modelos):
         req = urllib.request.Request(GEMINI.format(modelo), data=json.dumps(corpo(modelo)).encode(),
                                      headers={"x-goog-api-key": chave, "Content-Type": "application/json"})
         try:
@@ -55,7 +55,7 @@ def chamar_gemini(modelos, corpo, chave, timeout=40):
                 return json.loads(resp.read())
         except urllib.error.HTTPError as e:
             ultimo_erro = e
-            if e.code != 404:
+            if e.code not in (404, 429, 500, 503):
                 raise
     raise ultimo_erro
 
