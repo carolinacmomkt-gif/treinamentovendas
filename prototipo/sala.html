@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sala de Treino</title>
+<style>
+  :root {
+    --fundo: #0f1115; --painel: #1a1d24; --painel-2: #232733; --texto: #eef0f4; --suave: #9aa1b2;
+    --borda: #2c313d; --verde: #22c55e; --amarelo: #eab308; --vermelho: #ef4444; --azul: #3b82f6; --ouro: #f5b301;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  button { font: inherit; color: inherit; }
+  .app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; }
+
+  /* Barra superior */
+  .topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 20px; }
+  .topo .titulo { font-weight: 600; }
+  .topo .sub { color: var(--suave); font-size: 13px; }
+  .tempo { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; color: var(--suave); }
+  .tempo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--vermelho); }
+
+  /* Palco */
+  .meio { display: grid; grid-template-columns: 1fr 340px; gap: 12px; padding: 0 12px; min-height: 0; }
+  .palco { position: relative; background: var(--painel); border-radius: 16px; overflow: hidden; display: grid; place-items: center; min-height: 0; }
+  .cliente { width: min(78%, 62vh); aspect-ratio: 1; border-radius: 20px; overflow: hidden; transition: box-shadow .2s; }
+  .cliente svg { width: 100%; height: 100%; display: block; }
+  .palco.falando .cliente { box-shadow: 0 0 0 4px var(--verde), 0 0 40px rgba(34,197,94,.35); }
+  .etiqueta { position: absolute; left: 16px; bottom: 16px; background: rgba(0,0,0,.55); padding: 6px 12px; border-radius: 8px; font-size: 14px; }
+  .etiqueta small { color: var(--suave); }
+  .voce { position: absolute; right: 16px; bottom: 16px; width: 200px; aspect-ratio: 16/10; background: var(--painel-2); border-radius: 12px; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--borda); }
+  .voce video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  .voce .inicial { width: 56px; height: 56px; border-radius: 50%; background: var(--azul); display: grid; place-items: center; font-size: 22px; font-weight: 600; }
+  .voce span.nome { position: absolute; left: 8px; bottom: 6px; font-size: 12px; background: rgba(0,0,0,.5); padding: 2px 8px; border-radius: 6px; }
+  .legenda { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); max-width: 70%; background: rgba(0,0,0,.7); padding: 8px 14px; border-radius: 8px; text-align: center; opacity: 0; transition: opacity .2s; }
+  .legenda.on { opacity: 1; }
+
+  /* Animações do personagem */
+  .personagem .olho { transform-box: fill-box; transform-origin: center; animation: piscar 4.5s infinite; }
+  .personagem .boca-aberta { transform-box: fill-box; transform-origin: center; opacity: 0; }
+  .falando .personagem .boca-fechada { opacity: 0; }
+  .falando .personagem .boca-aberta { opacity: 1; animation: falar .16s infinite alternate ease-in-out; }
+  @keyframes piscar { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+  @keyframes falar { from { transform: scaleY(.25); } to { transform: scaleY(1.1); } }
+
+  /* Painel lateral */
+  .lado { background: var(--painel); border-radius: 16px; display: flex; flex-direction: column; min-height: 0; }
+  .abas { display: flex; border-bottom: 1px solid var(--borda); }
+  .abas button { flex: 1; background: none; border: 0; padding: 12px; cursor: pointer; color: var(--suave); border-bottom: 2px solid transparent; }
+  .abas button.on { color: var(--texto); border-color: var(--azul); }
+  .conteudo { padding: 16px; overflow: auto; flex: 1; }
+  .nota { display: flex; align-items: baseline; gap: 10px; }
+  .nota b { font-size: 48px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .nota .delta { font-weight: 600; }
+  .delta.sobe { color: var(--verde); } .delta.desce { color: var(--vermelho); }
+  .rotulo { color: var(--suave); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 8px; }
+  .termo { height: 10px; border-radius: 5px; background: linear-gradient(90deg, #3b82f6, #eab308, #ef4444); position: relative; }
+  .termo i { position: absolute; top: -4px; width: 4px; height: 18px; background: #fff; border-radius: 2px; transition: left .4s; }
+  .termo-txt { display: flex; justify-content: space-between; color: var(--suave); font-size: 12px; margin-top: 6px; }
+  .etapas { display: flex; flex-wrap: wrap; gap: 6px; }
+  .etapas span { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--painel-2); color: var(--suave); }
+  .etapas span.feita { color: var(--texto); background: #1e3a2a; }
+  .etapas span.atual { color: #fff; background: var(--azul); }
+  .metricas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .metricas div { background: var(--painel-2); border-radius: 10px; padding: 10px; }
+  .metricas b { display: block; font-size: 20px; }
+  .metricas small { color: var(--suave); }
+  .alertas { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .alertas li { background: var(--painel-2); border-left: 3px solid var(--amarelo); padding: 8px 10px; border-radius: 6px; font-size: 14px; }
+  .alertas li.bom { border-color: var(--verde); }
+  .transcricao p { margin: 0 0 12px; }
+  .transcricao b { display: block; font-size: 12px; color: var(--suave); }
+
+  /* Barra de controles */
+  .controles { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 14px; flex-wrap: wrap; }
+  .ctl { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--painel-2); display: grid; place-items: center; cursor: pointer; }
+  .ctl.off { background: var(--vermelho); }
+  .ctl svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .sair { height: 48px; padding: 0 22px; border-radius: 24px; border: 0; background: var(--vermelho); cursor: pointer; font-weight: 600; }
+  .demo { height: 40px; padding: 0 14px; border-radius: 20px; border: 1px dashed var(--borda); background: none; color: var(--suave); cursor: pointer; }
+  .demo:hover { color: var(--texto); border-color: var(--suave); }
+  .sep { width: 1px; height: 28px; background: var(--borda); margin: 0 6px; }
+
+  /* Galeria */
+  .galeria { position: fixed; inset: 0; background: rgba(8,9,12,.92); display: none; overflow: auto; padding: 32px 16px; z-index: 10; }
+  .galeria.on { display: block; }
+  .galeria h2 { text-align: center; margin: 0 0 6px; }
+  .galeria .sub { text-align: center; color: var(--suave); margin: 0 0 24px; }
+  .filtros { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+  .filtros button { background: var(--painel-2); border: 1px solid var(--borda); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .filtros button.on { background: var(--azul); border-color: var(--azul); }
+  .cartoes { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: 14px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; }
+  .cartao:hover { border-color: var(--azul); }
+  .cartao svg { width: 100%; display: block; }
+  .cartao div { padding: 10px 12px 12px; }
+  .cartao b { display: block; }
+  .cartao small { color: var(--suave); display: block; }
+
+  /* Fechamento */
+  .fechou { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 20; }
+  .fechou .caixa { background: linear-gradient(135deg, #14532d, #166534); border: 2px solid var(--ouro); border-radius: 20px; padding: 28px 40px; text-align: center; transform: scale(.6); opacity: 0; transition: transform .35s cubic-bezier(.2,1.6,.4,1), opacity .25s; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .fechou.on .caixa { transform: scale(1); opacity: 1; }
+  .fechou .caixa b { display: block; font-size: 30px; }
+  .fechou .caixa span { color: #bbf7d0; }
+  .fechou .xp { margin-top: 10px; font-size: 20px; color: var(--ouro); font-weight: 700; }
+  .moeda { position: fixed; top: -40px; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff3b0, var(--ouro) 55%, #a16207); border: 2px solid #a16207; z-index: 19; pointer-events: none; animation: cair linear forwards; }
+  @keyframes cair { to { transform: translateY(110vh) rotate(720deg); } }
+
+  @media (max-width: 860px) {
+    .app { height: auto; min-height: 100vh; }
+    .meio { grid-template-columns: 1fr; }
+    .palco { min-height: 60vh; }
+    .voce { width: 120px; }
+    .lado { min-height: 420px; }
+    .topo { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topo">
+    <div>
+      <div class="titulo">Reunião de diagnóstico</div>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="tempo" id="tempo">00:00</div>
+  </header>
+
+  <main class="meio">
+    <section class="palco" id="palco">
+      <div class="cliente" id="cliente"></div>
+      <div class="etiqueta" id="etiqueta"></div>
+      <div class="legenda" id="legenda"></div>
+      <div class="voce" id="voce"><div class="inicial">C</div><span class="nome">Você</span></div>
+    </section>
+
+    <aside class="lado">
+      <div class="abas">
+        <button class="on" data-aba="placar">Placar</button>
+        <button data-aba="transcricao">Transcrição</button>
+      </div>
+      <div class="conteudo" id="aba-placar">
+        <div class="nota"><b id="nota">50</b><span class="delta" id="delta"></span></div>
+        <div class="rotulo">Termômetro do cliente</div>
+        <div class="termo"><i id="termo" style="left: 20%"></i></div>
+        <div class="termo-txt"><span>Frio</span><span>Morno</span><span>Quente</span><span>Fechar</span></div>
+        <div class="rotulo">Etapa</div>
+        <div class="etapas" id="etapas"></div>
+        <div class="rotulo">Comunicação</div>
+        <div class="metricas">
+          <div><b id="ppm">142</b><small>palavras/min</small></div>
+          <div><b id="vicios">0</b><small>vícios de linguagem</small></div>
+          <div><b id="inseguranca">0</b><small>"acho", "talvez"</small></div>
+          <div><b id="fala">40%</b><small>você falando</small></div>
+        </div>
+        <div class="rotulo">Alertas</div>
+        <ul class="alertas" id="alertas"></ul>
+      </div>
+      <div class="conteudo transcricao" id="aba-transcricao" hidden></div>
+    </aside>
+  </main>
+
+  <footer class="controles">
+    <button class="ctl" id="mic" title="Microfone"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <button class="ctl" id="cam" title="Câmera"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3z"/></svg></button>
+    <button class="ctl" id="cc" title="Legendas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10.5a2 2 0 1 0 0 3M17 10.5a2 2 0 1 0 0 3"/></svg></button>
+    <button class="ctl" id="trocar" title="Trocar personagem"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5M17 8h4M19 6v4"/></svg></button>
+    <button class="sair" id="sair">Encerrar</button>
+    <span class="sep"></span>
+    <button class="demo" id="demo-fala">Simular fala do cliente</button>
+    <button class="demo" id="demo-nota">Simular boa pergunta</button>
+    <button class="demo" id="demo-fechar">Simular contrato fechado</button>
+  </footer>
+</div>
+
+<div class="galeria" id="galeria">
+  <h2>Escolha o cliente</h2>
+  <p class="sub">Cada personagem tem voz, jeito de falar e objeções próprias.</p>
+  <div class="filtros">
+    <button class="on" data-genero="">Todos</button>
+    <button data-genero="F">Mulheres</button>
+    <button data-genero="M">Homens</button>
+  </div>
+  <div class="cartoes" id="cartoes"></div>
+</div>
+
+<div class="fechou" id="fechou"><div class="caixa"><b>Contrato fechado!</b><span id="fechou-txt"></span><div class="xp">+250 XP</div></div></div>
+
+<script src="personagens.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const ETAPAS = ["Abertura", "Conexão", "Diagnóstico", "Apresentação", "Objeções", "Fechamento"];
+  let atual = PERSONAGENS[2];
+  let nota = 50, etapa = 0, temperatura = 20, inicio = Date.now();
+
+  function escolher(p) {
+    atual = p;
+    $("cliente").innerHTML = desenharPersonagem(p);
+    $("etiqueta").innerHTML = `${p.nome} <small>· ${p.nicho}</small>`;
+    $("sub").textContent = `${p.nome}, ${p.idade} anos · ${p.nicho} · perfil ${p.perfil} · voz ${p.voz}`;
+    $("aba-transcricao").innerHTML = "";
+    nota = 50; etapa = 0; temperatura = 20; inicio = Date.now();
+    $("alertas").innerHTML = "";
+    atualizarPlacar(0);
+    $("galeria").classList.remove("on");
+  }
+
+  function atualizarPlacar(delta) {
+    $("nota").textContent = nota;
+    const d = $("delta");
+    d.textContent = delta ? (delta > 0 ? `▲ ${delta}` : `▼ ${-delta}`) : "";
+    d.className = "delta " + (delta > 0 ? "sobe" : delta < 0 ? "desce" : "");
+    $("termo").style.left = `calc(${temperatura}% - 2px)`;
+    $("etapas").innerHTML = ETAPAS.map((e, i) => `<span class="${i < etapa ? "feita" : i === etapa ? "atual" : ""}">${e}</span>`).join("");
+  }
+
+  function alerta(texto, bom) {
+    const li = document.createElement("li");
+    li.textContent = texto;
+    if (bom) li.className = "bom";
+    $("alertas").prepend(li);
+  }
+
+  function transcrever(quem, texto) {
+    const p = document.createElement("p");
+    p.innerHTML = `<b></b>`;
+    p.querySelector("b").textContent = quem;
+    p.append(texto);
+    $("aba-transcricao").append(p);
+  }
+
+  function clienteFala(texto) {
+    const palco = $("palco");
+    palco.classList.add("falando");
+    $("legenda").textContent = texto;
+    $("legenda").classList.toggle("on", legendas);
+    transcrever(atual.nome, texto);
+    clearTimeout(clienteFala.t);
+    clienteFala.t = setTimeout(() => { palco.classList.remove("falando"); $("legenda").classList.remove("on"); }, Math.max(2500, texto.length * 55));
+  }
+
+  // Caixa registradora sintetizada: gaveta, dois sinos e moedas.
+  function tocarCaixa() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = ctx.currentTime;
+    const saida = ctx.createGain(); saida.gain.value = 0.7; saida.connect(ctx.destination);
+
+    const ruido = ctx.createBuffer(1, ctx.sampleRate * 0.18, ctx.sampleRate);
+    const dados = ruido.getChannelData(0);
+    for (let i = 0; i < dados.length; i++) dados[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / dados.length, 3);
+    const gaveta = ctx.createBufferSource(); gaveta.buffer = ruido;
+    const filtro = ctx.createBiquadFilter(); filtro.type = "bandpass"; filtro.frequency.value = 700; filtro.Q.value = 0.8;
+    gaveta.connect(filtro).connect(saida); gaveta.start(t);
+
+    const sino = (freq, inicio, volume) => {
+      [1, 2.76, 5.4].forEach((h, i) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine"; o.frequency.value = freq * h;
+        g.gain.setValueAtTime(0.0001, inicio);
+        g.gain.exponentialRampToValueAtTime(volume / (i + 1), inicio + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, inicio + 1.4 - i * 0.3);
+        o.connect(g).connect(saida); o.start(inicio); o.stop(inicio + 1.5);
+      });
+    };
+    sino(1568, t + 0.06, 0.35);
+    sino(2093, t + 0.2, 0.4);
+
+    for (let i = 0; i < 10; i++) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      const s = t + 0.38 + i * 0.045 + Math.random() * 0.03;
+      o.type = "triangle"; o.frequency.value = 3200 + Math.random() * 3000;
+      g.gain.setValueAtTime(0.0001, s);
+      g.gain.exponentialRampToValueAtTime(0.12, s + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, s + 0.09);
+      o.connect(g).connect(saida); o.start(s); o.stop(s + 0.1);
+    }
+  }
+
+  function chuvaDeMoedas() {
+    for (let i = 0; i < 40; i++) {
+      const m = document.createElement("div");
+      m.className = "moeda";
+      m.style.left = Math.random() * 100 + "vw";
+      m.style.animationDuration = 1.6 + Math.random() * 1.6 + "s";
+      m.style.animationDelay = Math.random() * 0.6 + "s";
+      document.body.append(m);
+      setTimeout(() => m.remove(), 4000);
+    }
+  }
+
+  function fecharContrato() {
+    tocarCaixa();
+    chuvaDeMoedas();
+    nota = Math.min(100, nota + 12); etapa = 5; temperatura = 96;
+    atualizarPlacar(12);
+    alerta("Fechamento com data marcada. Contrato fechado!", true);
+    $("fechou-txt").textContent = `${atual.nome} · ${atual.nicho}`;
+    $("fechou").classList.add("on");
+    setTimeout(() => $("fechou").classList.remove("on"), 2600);
+  }
+
+  // Controles
+  let legendas = true, camera = null;
+  $("cc").onclick = () => { legendas = !legendas; $("cc").classList.toggle("off", !legendas); };
+  $("mic").onclick = () => $("mic").classList.toggle("off");
+  $("cam").onclick = async () => {
+    if (camera) { camera.getTracks().forEach((t) => t.stop()); camera = null; $("voce").innerHTML = '<div class="inicial">C</div><span class="nome">Você</span>'; return; }
+    try {
+      camera = await navigator.mediaDevices.getUserMedia({ video: true });
+      $("voce").innerHTML = '<video autoplay muted playsinline></video><span class="nome">Você</span>';
+      $("voce").querySelector("video").srcObject = camera;
+    } catch { alerta("Não foi possível abrir a câmera."); }
+  };
+  $("trocar").onclick = () => $("galeria").classList.add("on");
+  $("sair").onclick = () => alert("Aqui abre o relatório final da reunião.");
+  $("galeria").onclick = (e) => { if (e.target.id === "galeria") $("galeria").classList.remove("on"); };
+
+  document.querySelectorAll(".abas button").forEach((b) => b.onclick = () => {
+    document.querySelectorAll(".abas button").forEach((x) => x.classList.toggle("on", x === b));
+    $("aba-placar").hidden = b.dataset.aba !== "placar";
+    $("aba-transcricao").hidden = b.dataset.aba !== "transcricao";
+  });
+
+  function montarGaleria(genero) {
+    $("cartoes").innerHTML = "";
+    PERSONAGENS.filter((p) => !genero || p.genero === genero).forEach((p) => {
+      const b = document.createElement("button");
+      b.className = "cartao";
+      b.innerHTML = desenharPersonagem(p) + `<div><b></b><small></small><small></small></div>`;
+      b.querySelector("b").textContent = `${p.nome}, ${p.idade}`;
+      b.querySelectorAll("small")[0].textContent = p.nicho;
+      b.querySelectorAll("small")[1].textContent = `${p.perfil} · voz ${p.voz}`;
+      b.onclick = () => escolher(p);
+      $("cartoes").append(b);
+    });
+  }
+  document.querySelectorAll(".filtros button").forEach((b) => b.onclick = () => {
+    document.querySelectorAll(".filtros button").forEach((x) => x.classList.toggle("on", x === b));
+    montarGaleria(b.dataset.genero);
+  });
+
+  // Simulações do protótipo
+  $("demo-fala").onclick = () => clienteFala(atual.fala);
+  $("demo-nota").onclick = () => {
+    transcrever("Você", "Entendi. E hoje, quanto isso te custa por mês em clientes que não chegam?");
+    nota = Math.min(100, nota + 6); etapa = Math.max(etapa, 2); temperatura = Math.min(90, temperatura + 15);
+    atualizarPlacar(6);
+    alerta("Boa pergunta de diagnóstico: explorou o custo do problema.", true);
+  };
+  $("demo-fechar").onclick = fecharContrato;
+
+  setInterval(() => {
+    const s = Math.floor((Date.now() - inicio) / 1000);
+    $("tempo").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  }, 1000);
+
+  montarGaleria("");
+  escolher(atual);
+  $("galeria").classList.add("on");
+</script>
+</body>
+</html>

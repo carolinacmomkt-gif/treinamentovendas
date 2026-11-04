@@ -57,6 +57,9 @@ Personagens prontos, **masculinos e femininos**, cada um com nome, idade, foto i
 | Juliana | 33 | descontraída | Dona de academia, já teve agência ruim |
 | Roberto | 50 | desconfiada | Dono de loja de materiais de construção, "internet não funciona pro meu ramo" |
 | Patrícia | 47 | calma | Dona de marcenaria de móveis planejados, ticket alto, compara orçamento |
+| Lucas | 29 | jovem, rápida | Dono de loja de celulares, executor, "vi um freelancer mais barato" |
+
+Os desenhos de cada personagem estão em `prototipo/personagens.js` (ilustrações próprias em SVG que piscam e mexem a boca quando falam).
 
 ### Vozes escolhidas (teste de 04/11/2026)
 Testadas no ElevenLabs com a mesma fala de cliente desconfiado. Aprovadas:
@@ -75,7 +78,7 @@ Segunda rodada masculina: aprovados Yuri e Witalo; não escolhidos Daniel, Ale G
 
 **Elenco de vozes da v1:** 3 masculinas (Paulo, Yuri, Witalo) e 2 femininas (Marcia, Raquel). Os 8 personagens se repartem entre essas vozes, com ajuste de ritmo e estabilidade para diferenciar quem usa a mesma voz.
 
-Na v1: 8 personagens (4 homens e 4 mulheres). Dá para escolher pela galeria, filtrar por gênero ou sortear. O nicho e o perfil podem ser trocados em qualquer personagem: a voz e o rosto continuam, e a ficha muda.
+Na v1: 9 personagens (5 homens e 4 mulheres). Dá para escolher pela galeria, filtrar por gênero ou sortear. O nicho e o perfil podem ser trocados em qualquer personagem: a voz e o rosto continuam, e a ficha muda.
 
 - **Nicho** (lista acima).
 - **Perfil DISC:** Executor, Comunicador, Planejador ou Analítico.
@@ -97,6 +100,26 @@ Cada personagem nasce com informações que **você precisa descobrir** pergunta
 O cliente só revela isso se você fizer as perguntas certas. A avaliação final mostra o que você descobriu e o que deixou passar.
 
 ## 5. A reunião (voz)
+
+### Sala de reunião
+A tela imita uma videochamada de verdade (com visual próprio, sem copiar nenhuma marca):
+- **Palco:** o personagem em destaque, com borda verde acesa quando ele fala, piscando e mexendo a boca.
+- **Sua janela:** pequena no canto, com a sua câmera (opcional) ou a sua inicial.
+- **Barra de baixo:** microfone, câmera, legendas, trocar personagem e o botão vermelho de encerrar.
+- **Topo:** tipo de reunião, cliente e cronômetro.
+- **Painel lateral:** abas Placar e Transcrição.
+- **Legenda** da fala do cliente na tela (pode desligar).
+
+Protótipo navegável em `prototipo/sala.html`.
+
+### Contrato fechado
+Quando a IA avaliadora confirma que você fechou (o cliente aceitou a proposta ou o próximo passo com data, conforme o modo):
+- Toca um **som de caixa registradora** (gaveta, sino e moedas, gerado no próprio navegador, sem arquivo de áudio de terceiros).
+- Aparece o aviso **"Contrato fechado!"** com o XP ganho e uma chuva de moedas.
+- No modo Prospecção, o mesmo efeito vale para **reunião marcada**.
+
+### Objeções
+O banco completo está em [conteudo/objecoes.md](conteudo/objecoes.md): 39 objeções gerais em 6 grupos (preço, tempo, confiança, decisor, concorrência, resultado), 18 específicas por nicho e as regras de escalada do cliente difícil.
 
 - Conversa por voz em tempo real, com interrupção natural: você pode cortar o cliente e ele pode cortar você.
 - Vozes brasileiras diferentes por personagem (homem/mulher, idade, tom).
@@ -250,7 +273,9 @@ O custo principal é por **minuto de voz** (ElevenLabs) + avaliação (Claude). 
 **v1: para você treinar**
 - Modos: Prospecção, Diagnóstico, Apresentação e fechamento
 - 12 nichos com ficha
-- 8 personagens (4 masculinos e 4 femininos) com voz própria
+- 9 personagens (5 masculinos e 4 femininos) com desenho e voz própria
+- Sala no estilo videochamada + som de caixa registradora ao fechar
+- Banco de objeções por categoria e por nicho
 - Configuração do cliente + estado oculto
 - Reunião por voz ao vivo (ElevenLabs Agents)
 - Placar ao vivo + painel de comunicação
