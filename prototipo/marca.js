@@ -11,10 +11,13 @@
 
   window.logoClosing = function (tamanho = 34) {
     return `<svg width="${tamanho}" height="${tamanho}" viewBox="0 0 64 64" aria-hidden="true">
-      <defs><linearGradient id="closing-c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1fd57a"/><stop offset="1" stop-color="#0b6b35"/></linearGradient></defs>
+      <defs>
+        <linearGradient id="closing-c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d6b38"/><stop offset=".28" stop-color="#2be38a"/><stop offset=".45" stop-color="#d6ffe9"/><stop offset=".6" stop-color="#25c975"/><stop offset="1" stop-color="#073d20"/></linearGradient>
+        <linearGradient id="closing-s" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#139c55"/><stop offset=".55" stop-color="#e6fff2"/><stop offset=".7" stop-color="#3ff09a"/><stop offset="1" stop-color="#18b463"/></linearGradient>
+      </defs>
       <path d="M54 7 H31 A25 25 0 0 0 31 57 H55 L49 49 H31 A17 17 0 0 1 31 15 H48 Z" fill="url(#closing-c)"/>
-      <path d="M14 49 L38 25" stroke="#22e07f" stroke-width="9"/>
-      <path d="M29 15 H53 V39 Z" fill="#22e07f"/>
+      <path d="M19 45 L36 28" stroke="url(#closing-s)" stroke-width="7"/>
+      <path d="M31 20 H45 V34 Z" fill="url(#closing-s)"/>
     </svg>`;
   };
 

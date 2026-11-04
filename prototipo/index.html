@@ -299,7 +299,8 @@
 
   // Topo
   const hora = new Date().getHours();
-  $("saudacao").textContent = `${hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"}, ${PERFIL.nome} 👋`;
+  $("saudacao").textContent = `${hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite"}, ${PERFIL.nome} `;
+  $("saudacao").insertAdjacentHTML("beforeend", '<span class="emoji">👋</span>');
   $("frase").textContent = est.nivel.proximo
     ? `Faltam ${fmt(est.nivel.faltam)} XP para você virar ${est.nivel.proximo}.`
     : "Você chegou ao nível máximo. Lenda!";
