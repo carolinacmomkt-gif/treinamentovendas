@@ -1,30 +1,30 @@
 // Personagens do simulador e o desenho de cada um (SVG gerado a partir dos traços).
 window.PERSONAGENS = [
-  { id: "ricardo", olhos: "#5a7a8c", nome: "Dr. Ricardo", idade: 52, nicho: "Ortopedista", perfil: "Analítico", voz: "Paulo", genero: "M",
+  { id: "ricardo", foto: "personagens/ricardo-a.jpg", olhos: "#5a7a8c", nome: "Dr. Ricardo", idade: 52, nicho: "Ortopedista", perfil: "Analítico", voz: "Paulo", genero: "M",
     pele: "#e8b896", cabelo: "#8d8d8d", estilo: "curto", roupa: "jaleco", cor: "#f4f5f7", detalhe: "#a9c6e8", oculos: true, fundo: "#2f4858",
     fala: "Boa tarde. Eu tenho uns 20 minutos. Antes de tudo: quanto custa e quanto eu vou ter de retorno?" },
-  { id: "camila", olhos: "#5b3a22", nome: "Dra. Camila", idade: 38, nicho: "Dentista", perfil: "Comunicadora", voz: "Marcia", genero: "F",
+  { id: "camila", foto: "personagens/camila-a.jpg", olhos: "#5b3a22", nome: "Dra. Camila", idade: 38, nicho: "Dentista", perfil: "Comunicadora", voz: "Marcia", genero: "F",
     pele: "#d9a27e", cabelo: "#4a2c1d", estilo: "liso", roupa: "jaleco", cor: "#f4f5f7", detalhe: "#f3c6d3", fundo: "#5b3f63",
     fala: "Oi! Que bom falar com você. Olha, só aparece gente no meu Instagram querendo preço de limpeza…" },
-  { id: "marcos", olhos: "#3a2414", nome: "Marcos", idade: 45, nicho: "Energia solar", perfil: "Executor", voz: "Yuri", genero: "M",
+  { id: "marcos", foto: "personagens/marcos-a.jpg", olhos: "#3a2414", nome: "Marcos", idade: 45, nicho: "Energia solar", perfil: "Executor", voz: "Yuri", genero: "M",
     pele: "#a8714f", cabelo: "#1f1a17", estilo: "curto", barba: "cheia", roupa: "polo", cor: "#e07a1f", fundo: "#3d4f2f",
     fala: "Vou ser direto: já contratei agência e só veio gente pedindo orçamento e sumindo. O que você faz de diferente?" },
-  { id: "fernanda", olhos: "#6b8f5e", nome: "Fernanda", idade: 41, nicho: "Imobiliária", perfil: "Planejadora", voz: "Raquel", genero: "F",
+  { id: "fernanda", foto: "personagens/fernanda-a.jpg", olhos: "#6b8f5e", nome: "Fernanda", idade: 41, nicho: "Imobiliária", perfil: "Planejadora", voz: "Raquel", genero: "F",
     pele: "#f0c8a8", cabelo: "#a5672f", estilo: "coque", roupa: "blazer", cor: "#1f3a5f", detalhe: "#f1e6dc", fundo: "#4a5568",
     fala: "Hoje o portal já me traz lead. Eu queria entender com calma por que eu pagaria por mais um canal." },
-  { id: "paulo", olhos: "#4f5f6b", nome: "Dr. Paulo", idade: 60, nicho: "Advogado", perfil: "Analítico", voz: "Paulo", genero: "M",
+  { id: "paulo", foto: "personagens/paulo-a.jpg", olhos: "#4f5f6b", nome: "Dr. Paulo", idade: 60, nicho: "Advogado", perfil: "Analítico", voz: "Paulo", genero: "M",
     pele: "#e2b08f", cabelo: "#c4c4c4", estilo: "calvo", roupa: "terno", cor: "#2b2d42", detalhe: "#8b1e3f", oculos: true, fundo: "#3b3a4a",
     fala: "Pois não. Adianto que meu cliente vem de indicação, e a OAB tem regras bem claras sobre captação." },
-  { id: "juliana", olhos: "#2e1a0e", nome: "Juliana", idade: 33, nicho: "Academia", perfil: "Comunicadora", voz: "Marcia", genero: "F",
+  { id: "juliana", foto: "personagens/juliana-a.jpg", olhos: "#2e1a0e", nome: "Juliana", idade: 33, nicho: "Academia", perfil: "Comunicadora", voz: "Marcia", genero: "F",
     pele: "#7a4a2e", cabelo: "#1b1210", estilo: "cacheado", roupa: "esportivo", cor: "#16a34a", fundo: "#1f4d4a",
     fala: "Gente, em janeiro enche sozinho! O problema é o resto do ano. Já tive uma agência e foi um desastre." },
-  { id: "roberto", olhos: "#4a3020", nome: "Roberto", idade: 50, nicho: "Materiais de construção", perfil: "Planejador", voz: "Yuri", genero: "M",
+  { id: "roberto", foto: "personagens/roberto-a.jpg", olhos: "#4a3020", nome: "Roberto", idade: 50, nicho: "Materiais de construção", perfil: "Planejador", voz: "Yuri", genero: "M",
     pele: "#c68b63", cabelo: "#5b5048", estilo: "curto", barba: "bigode", roupa: "xadrez", cor: "#b23a3a", fundo: "#5a4632",
     fala: "Sinceramente, internet não funciona pro meu ramo. Meu cliente é pedreiro, ele não vê anúncio." },
-  { id: "patricia", olhos: "#5b3a22", nome: "Patrícia", idade: 47, nicho: "Móveis planejados", perfil: "Analítica", voz: "Raquel", genero: "F",
+  { id: "patricia", foto: "personagens/patricia-a.jpg", olhos: "#5b3a22", nome: "Patrícia", idade: 47, nicho: "Móveis planejados", perfil: "Analítica", voz: "Raquel", genero: "F",
     pele: "#d4a07a", cabelo: "#2e1f18", estilo: "ombro", roupa: "cardigan", cor: "#8a6d5b", detalhe: "#ffffff", fundo: "#4b3b47",
     fala: "O cliente pede três orçamentos e fecha com o mais barato. Como anúncio resolve isso?" },
-  { id: "lucas", olhos: "#6b4a2b", nome: "Lucas", idade: 29, nicho: "Loja de celulares", perfil: "Executor", voz: "Witalo", genero: "M",
+  { id: "lucas", foto: "personagens/lucas-a.jpg", olhos: "#6b4a2b", nome: "Lucas", idade: 29, nicho: "Loja de celulares", perfil: "Executor", voz: "Witalo", genero: "M",
     pele: "#e9bf9b", cabelo: "#3a2a1e", estilo: "jovem", roupa: "camiseta", cor: "#111827", fundo: "#27364a",
     fala: "Mano, eu vi um freelancer bem mais barato. Me convence rápido, que eu tenho loja pra abrir." },
 ];
@@ -175,3 +175,8 @@ window.PERSONAGENS = [
     </svg>`;
   };
 })();
+
+// Retrato do personagem: a foto gerada no estilo de animação, ou o desenho 2D se não houver foto.
+window.retratoPersonagem = function (p) {
+  return p.foto ? `<img class="retrato" src="${p.foto}" alt="${p.nome}" loading="lazy">` : window.desenharPersonagem(p);
+};

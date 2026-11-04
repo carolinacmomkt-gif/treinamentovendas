@@ -144,3 +144,6 @@ a { color: inherit; text-decoration: none; }
 @keyframes olhar { 0%, 30% { transform: translate(0, 0); } 36%, 55% { transform: translate(1.6px, 0); } 61%, 76% { transform: translate(-1.5px, .4px); } 82%, 100% { transform: translate(0, 0); } }
 @keyframes sobrancelha { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-1.8px); } }
 @keyframes falar { from { transform: scaleY(.2); } to { transform: scaleY(1.05); } }
+
+/* Retrato dos personagens (foto no estilo de animação) */
+.retrato { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; }

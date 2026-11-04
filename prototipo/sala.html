@@ -59,6 +59,18 @@
   .palco.modo-3d.falando .cliente { box-shadow: inset 0 0 0 3px var(--verde); }
   .palco.modo-3d .cliente::after { content: ""; position: absolute; inset: 0; border-radius: 16px; pointer-events: none; transition: box-shadow .2s; }
   .palco.modo-3d.falando .cliente::after { box-shadow: inset 0 0 0 3px var(--verde), inset 0 0 40px rgba(34,224,127,.25); }
+  /* Modo vídeo: retrato no estilo de animação ocupando o palco, com movimento leve. */
+  .palco.modo-foto .cliente { position: absolute; inset: 0; width: auto; aspect-ratio: auto; border-radius: 16px; transform: none; box-shadow: none; }
+  .palco.modo-foto .video { position: absolute; inset: -3%; transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -6px)); transition: transform .3s ease-out; }
+  .palco.modo-foto .video img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; transform-origin: 50% 65%; animation: respirar-foto 5.5s ease-in-out infinite; }
+  .palco.modo-foto.falando .video img { animation: falar-foto 1.5s ease-in-out infinite; }
+  .palco.modo-foto .cliente::after { content: ""; position: absolute; inset: 0; border-radius: 16px; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 60%, rgba(0,0,0,.35)); transition: box-shadow .2s; }
+  .palco.modo-foto.falando .cliente::after { box-shadow: inset 0 0 0 3px var(--verde), inset 0 0 40px rgba(34,224,127,.25); }
+  @keyframes respirar-foto { 0%, 100% { transform: scale(1) translate(0, 0); } 50% { transform: scale(1.015) translate(-.3%, -.4%); } }
+  @keyframes falar-foto { 0%, 100% { transform: scale(1.01) rotate(0); } 25% { transform: scale(1.018) translateY(-.5%) rotate(.25deg); } 60% { transform: scale(1.012) translateY(.3%) rotate(-.3deg); } }
+  .cartao .retrato { aspect-ratio: 1; height: auto; }
+  .resumo .foto .retrato { width: 100%; height: 100%; }
+  .ctl[hidden] { display: none; }
   .palco .carregando { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.55); padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--suave); }
   .cenarios .cartao { padding: 0; }
   .cenarios .amostra { height: 90px; display: grid; place-items: center; font-size: 34px; }
@@ -280,7 +292,12 @@
 
   function escolher(p) {
     atual = p;
-    if (window.cena3d) window.cena3d.trocarPersonagem(p); else $("cliente").innerHTML = desenharPersonagem(p);
+    const palcoEl = $("palco");
+    if (p.foto) {
+      palcoEl.classList.add("modo-foto"); palcoEl.classList.remove("modo-3d");
+      $("cliente").innerHTML = `<div class="video"><img src="${p.foto}" alt="${p.nome}"></div>`;
+    } else if (window.cena3d) window.cena3d.trocarPersonagem(p);
+    else { palcoEl.classList.remove("modo-foto"); $("cliente").innerHTML = desenharPersonagem(p); }
     window.aoTrocarPersonagem?.(p);
     $("etiqueta").innerHTML = `${p.nome} <small>· ${p.nicho}</small>`;
     $("sub").textContent = `${p.nome}, ${p.idade} anos · ${p.nicho} · perfil ${p.perfil} · voz ${p.voz}`;
@@ -409,7 +426,7 @@
     });
     const novas = DADOS.conquistas(DADOS.carregar()).filter((c) => c.feita && !antes.includes(c.id));
     const res = DADOS.RESULTADOS[resultado];
-    $("resumo-foto").innerHTML = desenharPersonagem(atual);
+    $("resumo-foto").innerHTML = retratoPersonagem(atual);
     $("resumo-status").className = `status ${resultado}`;
     $("resumo-status").textContent = `${res.icone} ${res.rotulo}`;
     $("resumo-titulo").textContent = { fechou: "Contrato fechado!", proximo: "Próximo passo marcado", perdeu: "Essa não foi" }[resultado];
@@ -434,7 +451,7 @@
     PERSONAGENS.filter((p) => !genero || p.genero === genero).forEach((p) => {
       const b = document.createElement("button");
       b.className = "cartao";
-      b.innerHTML = desenharPersonagem(p) + `<div><b></b><small></small><small></small></div>`;
+      b.innerHTML = retratoPersonagem(p) + `<div><b></b><small></small><small></small></div>`;
       b.querySelector("b").textContent = `${p.nome}, ${p.idade}`;
       b.querySelectorAll("small")[0].textContent = p.nicho;
       b.querySelectorAll("small")[1].textContent = `${p.perfil} · voz ${p.voz}`;
@@ -476,7 +493,8 @@
 
   const aviso = document.createElement("div");
   aviso.className = "carregando"; aviso.textContent = "Carregando 3D…"; palco.append(aviso);
-  try {
+  $("btn-cenario").hidden = !!window.SALA.personagem().foto;
+  if (!window.SALA.personagem().foto) try {
     const p = window.SALA.personagem();
     cliente.innerHTML = "";
     window.cena3d = criarCena(cliente, p, cenarioDe(p));
@@ -489,7 +507,7 @@
     palco.addEventListener("mouseleave", () => window.cena3d.olhar(0, 0));
   } catch (erro) {
     console.warn("3D indisponível, usando o desenho 2D.", erro);
-    cliente.innerHTML = desenharPersonagem(window.SALA.personagem());
+    cliente.innerHTML = retratoPersonagem(window.SALA.personagem());
   }
   aviso.remove();
 

@@ -119,7 +119,12 @@ A tela imita uma videochamada de verdade (com visual próprio, sem copiar nenhum
 
 Protótipo navegável em `prototipo/sala.html`.
 
-### Personagens e cenários em 3D
+### Retratos dos personagens (estilo animação de cinema)
+- Os 9 personagens têm retratos gerados no Google Flow (modelo Nano Banana 2.1), em `prototipo/personagens/` (versões `-a` e `-b` de cada um). Cada retrato já traz o cenário do negócio ao fundo.
+- Na sala, o retrato ocupa o palco como um vídeo, com respiração, leve movimento com o mouse e borda verde quando o cliente fala. Na galeria, na página inicial e no histórico aparecem como miniaturas.
+- Para a boca se mexer junto com a voz, o próximo passo é um serviço de avatar falante (D-ID, HeyGen ou Simli) usando esses retratos.
+
+### Personagens e cenários em 3D (reserva)
 - Os personagens são montados em 3D no navegador (Three.js, `prototipo/avatar3d.js`) a partir das características de cada um. Não há modelos de terceiros, então não há licença a pagar.
 - Eles respiram, piscam, olham em volta, mexem a cabeça, levantam a sobrancelha e abrem a boca ao falar. A câmera acompanha o mouse para dar profundidade. Na v1, a boca vai seguir o volume da voz do ElevenLabs (`cena.volume()`).
 - 10 cenários 3D: escritório, consultório, clínica odontológica, escritório de advocacia, imobiliária (vista da cidade), galpão (painel solar e estoque), academia (neon verde), marcenaria, loja de celulares e home office. No automático, o cenário combina com o nicho do cliente; o botão de cenário na barra da sala troca na hora.

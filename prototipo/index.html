@@ -409,7 +409,7 @@
   function mostrarEscolha() {
     document.querySelectorAll(".rosto").forEach((r) => r.classList.toggle("on", r.dataset.id === escolha.p));
     const p = pessoa(escolha.p);
-    $("escolhido").innerHTML = `<div class="foto">${desenharPersonagem(p)}</div><div><b>${p.nome}, ${p.idade}</b><small>${p.nicho} · perfil ${p.perfil} · voz ${p.voz}</small><p></p></div>`;
+    $("escolhido").innerHTML = `<div class="foto">${retratoPersonagem(p)}</div><div><b>${p.nome}, ${p.idade}</b><small>${p.nicho} · perfil ${p.perfil} · voz ${p.voz}</small><p></p></div>`;
     $("escolhido").querySelector("p").textContent = `"${p.fala}"`;
     document.querySelectorAll("#modos .chip").forEach((c) => c.classList.toggle("on", c.dataset.v === escolha.modo));
     document.querySelectorAll("#dificuldades .chip").forEach((c) => c.classList.toggle("on", c.dataset.v === escolha.dif));
@@ -418,7 +418,7 @@
   PERSONAGENS.forEach((p) => {
     const b = document.createElement("button");
     b.className = "rosto"; b.dataset.id = p.id; b.title = `${p.nome} · ${p.nicho}`;
-    b.innerHTML = `<div class="foto">${desenharPersonagem(p)}</div><small>${p.nome}</small>`;
+    b.innerHTML = `<div class="foto">${retratoPersonagem(p)}</div><small>${p.nome}</small>`;
     b.onclick = () => { escolha.p = p.id; mostrarEscolha(); };
     $("rostos").append(b);
   });
@@ -472,7 +472,7 @@
     $("lista").innerHTML = sel.length ? sel.map((r) => {
       const p = pessoa(r.personagem), res = DADOS.RESULTADOS[r.resultado];
       const data = new Date(r.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
-      return `<div class="reuniao"><div class="foto">${desenharPersonagem(p)}</div>
+      return `<div class="reuniao"><div class="foto">${retratoPersonagem(p)}</div>
         <div><b>${p.nome}</b><small>${p.nicho} · ${data}</small></div>
         <div class="modo-r"><small>${DADOS.MODOS[r.modo]}</small></div>
         <div class="nota-r">${r.nota}<small> pts</small></div>
