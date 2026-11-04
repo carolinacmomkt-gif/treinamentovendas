@@ -35,7 +35,15 @@
     palavrasVendedor = palavrasCliente = segundosVendedor = vicios = inseguranca = 0; alertasDados = {};
     atualizarMetricas();
   }
-  window.reiniciarConversa = reiniciar;
+  window.reiniciarConversa = () => { reiniciar(); agendarInicio(); };
+  window.pararConversa = () => { pararDeOuvir(); iniciada = true; clearInterval(contagemTimer); $("contagem")?.classList.remove("on"); };
+
+  // A reunião começa sozinha: contagem de 5 s e o cliente abre a conversa.
+  let inicioAgendado = null;
+  function agendarInicio() {
+    clearTimeout(inicioAgendado);
+    inicioAgendado = setTimeout(() => { if (!iniciada) comecarAOuvir(); }, 400);
+  }
 
   function alertaUmaVez(chave, texto, bom) { if (alertasDados[chave]) return; alertasDados[chave] = true; alerta(texto, bom); }
   function mudarNota(d) { nota = Math.max(0, Math.min(100, nota + d)); atualizarPlacar(d); }
@@ -88,13 +96,17 @@
   async function clienteResponde(primeira, textoPronto) {
     ocupado = true; pausarReconhecimento();
     $("mic").classList.add("pensando");
-    let texto = "";
+    let texto = "", erro = null;
     try { texto = textoPronto ? await textoPronto : await perguntarAoGemini(); }
-    catch (e) {
+    catch (e) { erro = e; }
+    // Sem resposta do Gemini na abertura: o cliente abre com a frase de reserva dele.
+    if (!texto && primeira && atual.fala) texto = atual.fala;
+    if (!texto) {
       $("mic").classList.remove("pensando");
       ocupado = false;
-      const msg = /GEMINI_API_KEY/.test(e.message) ? "Falta a chave grátis do Gemini no arquivo .env." : "O Gemini não respondeu: " + e.message.slice(0, 120);
-      alerta(msg); retomarReconhecimento(); return;
+      const m = erro?.message || "sem resposta";
+      alerta(/GEMINI_API_KEY/.test(m) ? "Falta a chave grátis do Gemini no arquivo .env." : /cota/i.test(m) ? "A cota grátis do Gemini acabou por hoje. Ela volta amanhã." : "O Gemini não respondeu: " + m.slice(0, 120));
+      retomarReconhecimento(); return;
     }
     $("mic").classList.remove("pensando");
     const marca = (texto.match(/\[(FECHOU|MARCOU|ENCERROU)\]/) || [])[1];
@@ -148,16 +160,24 @@
   function pausarReconhecimento() { clearTimeout(espera); try { rec?.stop(); } catch {} }
   function retomarReconhecimento() { if (ouvindo) try { rec.start(); } catch {} }
 
-  function comecarAOuvir() {
-    if (!SR) { alerta("Este navegador não reconhece fala. Use o Chrome ou o Edge."); return; }
-    rec = rec || criarReconhecimento();
-    ouvindo = true;
-    $("mic").classList.remove("off"); $("mic").classList.add("escutando"); $("mic").title = "Microfone ligado: pode falar";
+  function comecarAOuvir(soMicrofone) {
+    if (!SR) alerta("Este navegador não reconhece fala. Use o Chrome ou o Edge.");
+    else {
+      rec = rec || criarReconhecimento();
+      ouvindo = true;
+      $("mic").classList.remove("off"); $("mic").classList.add("escutando"); $("mic").title = "Microfone ligado: pode falar";
+    }
+    if (soMicrofone) return;
     if (!iniciada) iniciarReuniao();
     else if (!ocupado) retomarReconhecimento();
   }
   // Contagem de 5 segundos. Enquanto conta, o Gemini já cria a abertura do cliente
   // (diferente a cada reunião) e a voz dela, para ele falar assim que chegar a zero.
+  function fecharContagem() {
+    const caixa = $("contagem");
+    caixa.classList.remove("on", "clicavel"); caixa.querySelector("b").classList.remove("pequeno");
+    caixa.querySelector("span").textContent = "A reunião começa em";
+  }
   function iniciarReuniao() {
     iniciada = true; ocupado = true;
     const pessoa = atual;
@@ -170,7 +190,16 @@
       n -= 1;
       if (atual !== pessoa) { clearInterval(contagemTimer); return; }
       if (n > 0) { numero.textContent = n; numero.style.animation = "none"; void numero.offsetWidth; numero.style.animation = ""; return; }
-      clearInterval(contagemTimer); caixa.classList.remove("on");
+      clearInterval(contagemTimer);
+      // O navegador só deixa tocar som depois de um clique na página.
+      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) {
+        caixa.querySelector("span").textContent = `${pessoa.nome} já está na sala`;
+        numero.textContent = "Clique para entrar";
+        numero.classList.add("pequeno"); caixa.classList.add("clicavel");
+        caixa.onclick = () => { caixa.onclick = null; fecharContagem(); comecarAOuvir(true); clienteResponde(true, abertura); };
+        return;
+      }
+      fecharContagem();
       clienteResponde(true, abertura);
     }, 1000);
   }
@@ -184,4 +213,5 @@
   $("mic").title = "Ligar o microfone e conversar";
   $("mic").classList.add("off");
   reiniciar();
+  agendarInicio();
 })();

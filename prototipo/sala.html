@@ -75,6 +75,8 @@
   .ctl.pensando { background: #2a3b31; animation: pulsar-mic 1s infinite; }
   .contagem { position: absolute; inset: 0; z-index: 6; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 16px; background: rgba(3,10,6,.55); backdrop-filter: blur(3px); color: #fff; pointer-events: none; }
   .contagem.on { display: flex; }
+  .contagem.clicavel { pointer-events: auto; cursor: pointer; }
+  .contagem b.pequeno { font-size: 26px; padding: 14px 26px; border-radius: 14px; border: 1px solid var(--verde); text-shadow: none; animation: none; }
   .contagem span { font: 600 15px/1.2 Inter, sans-serif; letter-spacing: .04em; opacity: .85; }
   .contagem b { font: 400 96px/1 Michroma, sans-serif; color: var(--verde); text-shadow: 0 0 30px rgba(31,213,122,.55); animation: contar 1s ease-out; }
   @keyframes contar { from { transform: scale(1.5); opacity: 0; } 30% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
@@ -425,6 +427,7 @@
     $("fechou-txt").textContent = `${atual.nome} · ${atual.nicho}`;
     $("fechou").classList.add("on");
     setTimeout(() => $("fechou").classList.remove("on"), 2600);
+    voltarComContrato();
   }
 
   // Controles
@@ -439,8 +442,8 @@
     } catch { alerta("Não foi possível abrir a câmera."); }
   };
   $("trocar").onclick = () => $("galeria").classList.add("on");
-  $("sair").onclick = () => {
-    retratoVivo?.calar();
+  // Guarda a reunião no histórico e devolve o registro e as conquistas novas.
+  function registrarReuniao() {
     const antes = DADOS.conquistas(DADOS.carregar()).filter((c) => c.feita).map((c) => c.id);
     const resultado = fechouContrato ? "fechou" : nota >= 60 ? "proximo" : "perdeu";
     const r = DADOS.registrar({
@@ -449,6 +452,28 @@
       descobriu: Math.min(4, perguntas), cedeuDesconto: false,
     });
     const novas = DADOS.conquistas(DADOS.carregar()).filter((c) => c.feita && !antes.includes(c.id));
+    return { r, novas, resultado };
+  }
+
+  // Venda aprovada: comemora, salva e volta para a página inicial com os parabéns.
+  function voltarComContrato() {
+    if (voltarComContrato.feito) return; voltarComContrato.feito = true;
+    window.pararConversa?.();
+    const { r, novas } = registrarReuniao();
+    const frase = Math.random() < 0.5 ? "Você conseguiu mais um contrato para a sua agência." : "Você conseguiu mais um contrato para você.";
+    try {
+      sessionStorage.setItem("closing:aviso", JSON.stringify({
+        titulo: "Parabéns!", texto: frase, detalhe: `${atual.nome} · ${atual.nicho} · nota ${r.nota} · +${r.xp} XP`,
+        conquistas: novas.map((c) => c.nome),
+      }));
+    } catch {}
+    setTimeout(() => { location.href = "index.html"; }, 3200);
+  }
+
+  $("sair").onclick = () => {
+    retratoVivo?.calar();
+    window.pararConversa?.();
+    const { r, novas, resultado } = registrarReuniao();
     const res = DADOS.RESULTADOS[resultado];
     $("resumo-foto").innerHTML = retratoPersonagem(atual);
     $("resumo-status").className = `status ${resultado}`;

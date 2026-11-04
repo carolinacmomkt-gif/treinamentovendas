@@ -25,13 +25,18 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent
 CACHE = RAIZ / ".cache-voz"
 GEMINI = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
-# Modelos rápidos primeiro. O valor é o quanto o modelo "pensa" antes de responder (o mínimo possível).
 MODELOS_GEMINI = {
-    "gemini-3-flash-preview": {"thinkingLevel": "minimal"},  # o mais rápido nos testes (~1,5 s)
+    # O plano grátis dá só 20 respostas por dia em cada modelo, então a conversa passa por vários.
+    # Em ordem de rapidez nos testes de 04/11/2026; o valor é o mínimo de "pensar" que cada um aceita.
+    "gemini-3.5-flash": {"thinkingLevel": "minimal"},
+    "gemini-3.6-flash": {"thinkingLevel": "minimal"},
+    "gemini-3-flash-preview": {"thinkingLevel": "minimal"},
+    "gemini-3.7-flash": {"thinkingLevel": "minimal"},
+    "gemini-flash-latest": {"thinkingLevel": "minimal"},
+    "gemini-3.1-flash-lite": {"thinkingLevel": "minimal"},
     "gemini-3.5-flash-lite": {"thinkingLevel": "minimal"},
     "gemini-flash-lite-latest": {"thinkingLevel": "minimal"},
     "gemini-3.8-flash": {"thinkingLevel": "low"},
-    "gemini-2.5-flash": {"thinkingBudget": 0},
 }
 MODELOS_VOZ = ["gemini-3.8-flash-lite-tts", "gemini-2.5-flash-preview-tts", "gemini-3.8-flash-tts"]
 
@@ -80,6 +85,11 @@ def chamar_um(modelo, corpo, chave, timeout):
                 segundos = h * 3600 + m * 60 + sec
             BLOQUEADOS[modelo] = time.time() + segundos
             raise CotaEsgotada(f"cota grátis do {modelo} esgotada") from e
+        if e.code in (500, 503):
+            BLOQUEADOS[modelo] = time.time() + 60  # sobrecarregado: tenta de novo daqui a 1 minuto
+        raise
+    except (urllib.error.URLError, TimeoutError, OSError):
+        BLOQUEADOS[modelo] = time.time() + 120  # lento demais agora: pula por 2 minutos
         raise
 
 
@@ -142,7 +152,7 @@ Banco de objeções (referência):
 
 
 ABERTURA = ("(O vendedor acabou de entrar na reunião por vídeo. Abra a conversa você mesmo, do seu jeito e com o seu humor "
-            "de hoje: cumprimente e diga em poucas palavras o que espera desta conversa. Seja original, nada de frase pronta.)")
+            "de hoje, em no máximo 2 frases curtas: cumprimente e diga o que espera desta conversa. Seja original, nada de frase pronta.)")
 
 
 def responder_cliente(pedido):
@@ -166,7 +176,7 @@ def responder_cliente(pedido):
         return {"systemInstruction": {"parts": [{"text": instrucoes_cliente(pedido)}]}, "contents": conteudo, "generationConfig": config}
 
     modelos = [m for m in [ler_chave("GEMINI_MODEL")] if m] + list(MODELOS_GEMINI)
-    dados = chamar_gemini(modelos, corpo, chave, timeout=10)
+    dados = chamar_gemini(modelos, corpo, chave, timeout=7)
     partes = dados["candidates"][0]["content"]["parts"]
     return " ".join(x.get("text", "") for x in partes if not x.get("thought")).strip()
 

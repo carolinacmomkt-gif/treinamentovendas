@@ -287,11 +287,46 @@
   </main>
 </div>
 
+<style>
+  .parabens { position: fixed; top: 18px; left: 50%; z-index: 50; display: flex; align-items: center; gap: 14px; width: min(520px, calc(100% - 32px));
+    padding: 16px 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(31,213,122,.22), rgba(5,10,7,.96) 60%); border: 1px solid var(--marca);
+    box-shadow: 0 18px 50px rgba(0,0,0,.5), 0 0 40px rgba(31,213,122,.25); transform: translate(-50%, -140%); transition: transform .5s cubic-bezier(.2,.9,.2,1.2); }
+  .parabens.on { transform: translate(-50%, 0); }
+  .parabens-icone { font-size: 34px; animation: pular-trofeu 1s ease-in-out infinite alternate; }
+  .parabens-txt { display: grid; gap: 2px; flex: 1; }
+  .parabens-txt b { font: 700 20px/1.2 Saira, Inter, sans-serif; color: var(--marca); }
+  .parabens-txt span { color: var(--texto); font-weight: 600; }
+  .parabens-txt small { color: var(--texto-3); }
+  .parabens button { background: none; border: 0; color: var(--texto-2); font-size: 24px; cursor: pointer; align-self: flex-start; }
+  @keyframes pular-trofeu { to { transform: translateY(-4px) rotate(-6deg); } }
+</style>
+<div class="parabens" id="parabens" role="status" aria-live="polite" hidden>
+  <div class="parabens-icone">🏆</div>
+  <div class="parabens-txt"><b id="parabens-titulo"></b><span id="parabens-texto"></span><small id="parabens-detalhe"></small></div>
+  <button id="parabens-fechar" aria-label="Fechar aviso">×</button>
+</div>
+
 <script src="marca.js"></script>
 <script src="personagens.js"></script>
 <script src="dados.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
+
+  // Parabéns quando você volta de uma reunião com contrato fechado.
+  (function mostrarParabens() {
+    let aviso = null;
+    try { aviso = JSON.parse(sessionStorage.getItem("closing:aviso")); sessionStorage.removeItem("closing:aviso"); } catch {}
+    if (!aviso) return;
+    $("parabens-titulo").textContent = aviso.titulo;
+    $("parabens-texto").textContent = aviso.texto;
+    $("parabens-detalhe").textContent = aviso.detalhe + (aviso.conquistas?.length ? ` · 🏅 ${aviso.conquistas.join(", ")}` : "");
+    const caixa = $("parabens");
+    caixa.hidden = false;
+    void caixa.offsetWidth; setTimeout(() => caixa.classList.add("on"), 60);
+    const fechar = () => { caixa.classList.remove("on"); setTimeout(() => (caixa.hidden = true), 500); };
+    $("parabens-fechar").onclick = fechar;
+    setTimeout(fechar, 7000);
+  })();
   const historico = DADOS.carregar();
   const est = DADOS.estatisticas(historico);
   const pessoa = (id) => PERSONAGENS.find((p) => p.id === id);
