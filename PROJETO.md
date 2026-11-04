@@ -166,8 +166,8 @@ Avaliação separada da técnica de vendas, porque dá para vender bem e falar m
 ### Dicção e ritmo
 | Métrica | Como mede | Faixa boa |
 |---|---|---|
-| Ritmo | Palavras por minuto em cada fala sua | 130 a 160 ppm |
-| Vícios de linguagem | Contagem de "né", "tipo", "então", "assim", "éé", "ããh" | Menos de 3 a cada 5 minutos |
+| Ritmo | Sílabas por segundo em cada fala sua (mais justo em português que palavras/min) | Dentro da sua faixa, perto de 3,8 a 4,8 sílabas/s |
+| Vícios de linguagem | Contagem de "né", "tipo", "então", "assim", "éé", "ããh" | Até 5 por minuto; depois até 3 |
 | Fluidez | Frases interrompidas, recomeços ("eu… a gente… o que eu quero dizer") | Poucas |
 | Pausas | Silêncios longos no meio da frase x pausas estratégicas depois de uma pergunta | Pausar depois de perguntar |
 | Clareza | Trechos que o reconhecimento de voz não entendeu (sinal de fala embolada ou baixa) | Quase nenhum |
@@ -184,6 +184,9 @@ Avaliação separada da técnica de vendas, porque dá para vender bem e falar m
 | Formalidade | Ajusta o tom ao personagem (formal com Dr. Paulo, leve com Juliana) |
 
 No relatório, cada problema vem com o trecho, o porquê e a troca sugerida. Exemplo: "Você disse *acho que dá pra gerar resultado* 4 vezes. Isso passa insegurança. Troque por *o plano é gerar X em Y dias*."
+
+### Módulo de Oratória
+Área própria de treinos curtos (voz, ritmo, pausas, entonação, volume e ansiedade), desenhada a partir de pesquisa científica. Desenho completo, evidências e fontes em [conteudo/oratoria.md](conteudo/oratoria.md).
 
 **Ponto técnico a validar na v1:** muitos transcritores limpam "éé" e "né" automaticamente. A transcrição precisa ser literal para contar vícios; isso será testado logo no começo.
 
@@ -292,6 +295,7 @@ O custo principal é por **minuto de voz** (ElevenLabs) + avaliação (Claude). 
 - Reunião por voz ao vivo (ElevenLabs Agents)
 - Placar ao vivo + painel de comunicação
 - Avaliação de dicção (ritmo, vícios, fluidez) e vocabulário
+- Módulo de Oratória com exercícios curtos, ritual pré-reunião e escada de exposição
 - Relatório final completo
 - XP, níveis, conquistas e desafio da semana
 - Histórico local
