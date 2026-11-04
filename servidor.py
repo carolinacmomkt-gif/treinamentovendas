@@ -8,6 +8,8 @@ A chave fica só no arquivo .env deste computador.
 Uso, na pasta do projeto:  python servidor.py   (abre em http://127.0.0.1:5173)
 """
 import base64
+import re
+import time
 import concurrent.futures
 import hashlib
 import io
@@ -52,11 +54,33 @@ def ler_chave(nome="GEMINI_API_KEY"):
     return os.environ.get(nome, "")
 
 
+# Modelos que estouraram a cota grátis ficam de fora até a cota voltar, para não perder tempo.
+BLOQUEADOS = {}
+
+
+class CotaEsgotada(Exception):
+    pass
+
+
 def chamar_um(modelo, corpo, chave, timeout):
+    if BLOQUEADOS.get(modelo, 0) > time.time():
+        raise CotaEsgotada(f"cota grátis do {modelo} esgotada")
     req = urllib.request.Request(GEMINI.format(modelo), data=json.dumps(corpo(modelo)).encode(),
                                  headers={"x-goog-api-key": chave, "Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        e.corpo = e.read().decode("utf-8", "replace")
+        if e.code == 429:
+            espera = re.search(r"retry in (?:(\d+)h)?(?:(\d+)m)?([\d.]+)?s?", e.corpo)
+            segundos = 60
+            if espera and "per day" in e.corpo:
+                h, m, sec = (float(x or 0) for x in espera.groups())
+                segundos = h * 3600 + m * 60 + sec
+            BLOQUEADOS[modelo] = time.time() + segundos
+            raise CotaEsgotada(f"cota grátis do {modelo} esgotada") from e
+        raise
 
 
 def chamar_gemini(modelos, corpo, chave, timeout=15, juntos=1):
@@ -97,7 +121,8 @@ Você está numa reunião por vídeo com um vendedor de agência de tráfego pag
 {MODOS.get(p.get('modo'), MODOS['diagnostico'])}
 {DIFICULDADE.get(p.get('dificuldade'), DIFICULDADE['medio'])}
 
-Seu jeito: comece pela ideia desta frase: "{pers.get('fala')}".
+Exemplo do seu jeito de falar (só a ideia, nunca copie): "{pers.get('fala')}".
+Seu humor hoje: {estado.get('humor', 'normal')}. Cada reunião é diferente: invente detalhes do seu dia e do seu negócio que combinem com você.
 
 Informações que você só revela se o vendedor perguntar bem (estado oculto):
 - Dor real: {estado.get('dor')}
@@ -116,6 +141,10 @@ Banco de objeções (referência):
 {objecoes}"""
 
 
+ABERTURA = ("(O vendedor acabou de entrar na reunião por vídeo. Abra a conversa você mesmo, do seu jeito e com o seu humor "
+            "de hoje: cumprimente e diga em poucas palavras o que espera desta conversa. Seja original, nada de frase pronta.)")
+
+
 def responder_cliente(pedido):
     chave = ler_chave()
     if not chave:
@@ -128,16 +157,16 @@ def responder_cliente(pedido):
         else:
             conteudo.append({"role": papel, "parts": [{"text": fala["texto"]}]})
     if not conteudo or conteudo[0]["role"] != "user":
-        conteudo.insert(0, {"role": "user", "parts": [{"text": "(O vendedor entrou na reunião.)"}]})
+        conteudo.insert(0, {"role": "user", "parts": [{"text": ABERTURA}]})
 
     def corpo(modelo):
-        config = {"temperature": 0.9, "maxOutputTokens": 400}
+        config = {"temperature": 1.0, "maxOutputTokens": 400}
         if MODELOS_GEMINI.get(modelo):
             config["thinkingConfig"] = MODELOS_GEMINI[modelo]  # resposta rápida, quase sem "pensar" antes
         return {"systemInstruction": {"parts": [{"text": instrucoes_cliente(pedido)}]}, "contents": conteudo, "generationConfig": config}
 
     modelos = [m for m in [ler_chave("GEMINI_MODEL")] if m] + list(MODELOS_GEMINI)
-    dados = chamar_gemini(modelos, corpo, chave, timeout=12, juntos=2)
+    dados = chamar_gemini(modelos, corpo, chave, timeout=10)
     partes = dados["candidates"][0]["content"]["parts"]
     return " ".join(x.get("text", "") for x in partes if not x.get("thought")).strip()
 
@@ -212,8 +241,10 @@ class Manipulador(SimpleHTTPRequestHandler):
             self.wfile.write(audio)
         except PermissionError as e:
             self.responder_json(503, {"erro": str(e)})
+        except CotaEsgotada as e:
+            self.responder_json(429, {"erro": str(e)})
         except urllib.error.HTTPError as e:
-            self.responder_json(e.code, {"erro": e.read().decode("utf-8", "replace")[:400]})
+            self.responder_json(e.code, {"erro": getattr(e, "corpo", "")[:400]})
         except Exception as e:  # noqa: BLE001 - o navegador só precisa saber que falhou
             self.responder_json(500, {"erro": str(e)[:400]})
 

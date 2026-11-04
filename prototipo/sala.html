@@ -73,6 +73,11 @@
   .ctl[hidden] { display: none; }
   .ctl.escutando { background: var(--verde); color: #04140b; box-shadow: 0 0 0 6px rgba(34,224,127,.2); }
   .ctl.pensando { background: #2a3b31; animation: pulsar-mic 1s infinite; }
+  .contagem { position: absolute; inset: 0; z-index: 6; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 16px; background: rgba(3,10,6,.55); backdrop-filter: blur(3px); color: #fff; pointer-events: none; }
+  .contagem.on { display: flex; }
+  .contagem span { font: 600 15px/1.2 Inter, sans-serif; letter-spacing: .04em; opacity: .85; }
+  .contagem b { font: 400 96px/1 Michroma, sans-serif; color: var(--verde); text-shadow: 0 0 30px rgba(31,213,122,.55); animation: contar 1s ease-out; }
+  @keyframes contar { from { transform: scale(1.5); opacity: 0; } 30% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
   @keyframes pulsar-mic { 50% { opacity: .55; } }
   .palco .carregando { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.55); padding: 6px 12px; border-radius: 8px; font-size: 13px; color: var(--suave); }
   .cenarios .cartao { padding: 0; }
@@ -179,6 +184,7 @@
       <div class="cliente" id="cliente"></div>
       <div class="etiqueta" id="etiqueta"></div>
       <div class="legenda" id="legenda"></div>
+      <div class="contagem" id="contagem"><span>A reunião começa em</span><b>5</b></div>
       <div class="voce" id="voce"><div class="inicial" id="inicial"></div><span class="nome">Você</span></div>
     </section>
 
@@ -338,6 +344,7 @@
 
   // Retrato com a boca animada (boca.js); enquanto não carrega, mostra a foto parada.
   let retratoVivo = null;
+  window.retratoVivoAtual = () => retratoVivo;
   function mostrarFoto(p) {
     retratoVivo?.destruir(); retratoVivo = null;
     $("cliente").innerHTML = `<div class="video"><img src="${p.foto}" alt="${p.nome}"></div>`;

@@ -266,9 +266,11 @@ export async function montar(container, personagem) {
     if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).erro || `voz indisponível (${resp.status})`);
     return audioPronto().decodeAudioData(await resp.arrayBuffer());
   }
+  const preparadas = new Map(); // voz já pedida antes (ex.: durante a contagem)
   async function falarComGemini(texto) {
     const ac = audioPronto();
-    const pedidos = [vozDaFrase(texto)];
+    const pedidos = [preparadas.get(texto) || vozDaFrase(texto)];
+    preparadas.delete(texto);
     pedidos.forEach((p) => p.catch(() => {}));
     const analisador = ac.createAnalyser();
     analisador.fftSize = 1024;
@@ -318,6 +320,8 @@ export async function montar(container, personagem) {
     moverBoca(ms) { ritmoAte = performance.now() + ms; },
     detectou: () => !!pts,
     fixar(valor) { fixo = valor; },
+    // Já pede a voz desta fala, para tocar sem espera quando chegar a hora.
+    preparar(texto) { if (!preparadas.has(texto)) { const p = vozDaFrase(texto); p.catch(() => {}); preparadas.set(texto, p); } },
     destruir() { ativo = false; obs.disconnect(); retrato.calar(); },
   };
   return retrato;

@@ -18,12 +18,18 @@
   const INSEGURANCA = /\b(acho|talvez|meio que|mais ou menos|vou tentar)\b/gi;
   const PERGUNTA_ABERTA = /^(o que|como|qual|quais|quanto|quantos|quantas|por que|porque|quando|onde|quem|me conta|me fala|conta pra mim)\b/i;
 
+  const HUMORES = ["apressado, com outra reunião logo depois", "de bom humor e falante", "desconfiado de agências",
+    "curioso, mas cauteloso com dinheiro", "cansado depois de um dia cheio", "direto ao ponto, sem paciência para enrolação",
+    "animado com uma ideia nova para o negócio", "preocupado porque o mês está fraco"];
+  let iniciada = false, contagemTimer = null;
   let historico = [], estado = null, ouvindo = false, ocupado = false, rec = null, buffer = "", inicioFala = 0, espera = null;
   let palavrasVendedor = 0, palavrasCliente = 0, segundosVendedor = 0, vicios = 0, inseguranca = 0, alertasDados = {};
 
   function reiniciar() {
     pararDeOuvir();
+    iniciada = false; clearInterval(contagemTimer); $("contagem")?.classList.remove("on");
     historico = []; estado = {
+      humor: sorteia(HUMORES),
       dor: sorteia(OCULTO.dor), orcamento: sorteia(OCULTO.orcamento), decisor: sorteia(OCULTO.decisor), objecao: sorteia(OCULTO.objecao),
     };
     palavrasVendedor = palavrasCliente = segundosVendedor = vicios = inseguranca = 0; alertasDados = {};
@@ -79,11 +85,11 @@
     return dados.texto || "";
   }
 
-  async function clienteResponde(primeira) {
+  async function clienteResponde(primeira, textoPronto) {
     ocupado = true; pausarReconhecimento();
     $("mic").classList.add("pensando");
-    let texto = primeira ? atual.fala : "";
-    try { if (!texto) texto = await perguntarAoGemini(); }
+    let texto = "";
+    try { texto = textoPronto ? await textoPronto : await perguntarAoGemini(); }
     catch (e) {
       $("mic").classList.remove("pensando");
       ocupado = false;
@@ -147,9 +153,28 @@
     rec = rec || criarReconhecimento();
     ouvindo = true;
     $("mic").classList.remove("off"); $("mic").classList.add("escutando"); $("mic").title = "Microfone ligado: pode falar";
-    if (!historico.length) clienteResponde(true);
-    else retomarReconhecimento();
+    if (!iniciada) iniciarReuniao();
+    else if (!ocupado) retomarReconhecimento();
   }
+  // Contagem de 5 segundos. Enquanto conta, o Gemini já cria a abertura do cliente
+  // (diferente a cada reunião) e a voz dela, para ele falar assim que chegar a zero.
+  function iniciarReuniao() {
+    iniciada = true; ocupado = true;
+    const pessoa = atual;
+    const abertura = perguntarAoGemini();
+    abertura.then((t) => { if (atual === pessoa) window.retratoVivoAtual?.()?.preparar?.(t.replace(/\[(FECHOU|MARCOU|ENCERROU)\]/g, "").trim()); }).catch(() => {});
+    const caixa = $("contagem"), numero = caixa.querySelector("b");
+    let n = 5;
+    numero.textContent = n; caixa.classList.add("on");
+    contagemTimer = setInterval(() => {
+      n -= 1;
+      if (atual !== pessoa) { clearInterval(contagemTimer); return; }
+      if (n > 0) { numero.textContent = n; numero.style.animation = "none"; void numero.offsetWidth; numero.style.animation = ""; return; }
+      clearInterval(contagemTimer); caixa.classList.remove("on");
+      clienteResponde(true, abertura);
+    }, 1000);
+  }
+
   function pararDeOuvir() {
     ouvindo = false; pausarReconhecimento();
     if ($("mic")) { $("mic").classList.remove("escutando"); $("mic").classList.add("off"); $("mic").title = "Ligar o microfone e conversar"; }
