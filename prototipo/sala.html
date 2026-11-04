@@ -62,8 +62,8 @@
   /* Modo vídeo: retrato no estilo de animação ocupando o palco, com movimento leve. */
   .palco.modo-foto .cliente { position: absolute; inset: 0; width: auto; aspect-ratio: auto; border-radius: 16px; transform: none; box-shadow: none; }
   .palco.modo-foto .video { position: absolute; inset: -3%; transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -6px)); transition: transform .3s ease-out; }
-  .palco.modo-foto .video img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; transform-origin: 50% 65%; animation: respirar-foto 5.5s ease-in-out infinite; }
-  .palco.modo-foto.falando .video img { animation: falar-foto 1.5s ease-in-out infinite; }
+  .palco.modo-foto .video img, .palco.modo-foto .video canvas { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; transform-origin: 50% 65%; animation: respirar-foto 5.5s ease-in-out infinite; }
+  .palco.modo-foto.falando .video img, .palco.modo-foto.falando .video canvas { animation: falar-foto 1.5s ease-in-out infinite; }
   .palco.modo-foto .cliente::after { content: ""; position: absolute; inset: 0; border-radius: 16px; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 60%, rgba(0,0,0,.35)); transition: box-shadow .2s; }
   .palco.modo-foto.falando .cliente::after { box-shadow: inset 0 0 0 3px var(--verde), inset 0 0 40px rgba(34,224,127,.25); }
   @keyframes respirar-foto { 0%, 100% { transform: scale(1) translate(0, 0); } 50% { transform: scale(1.015) translate(-.3%, -.4%); } }
@@ -295,7 +295,7 @@
     const palcoEl = $("palco");
     if (p.foto) {
       palcoEl.classList.add("modo-foto"); palcoEl.classList.remove("modo-3d");
-      $("cliente").innerHTML = `<div class="video"><img src="${p.foto}" alt="${p.nome}"></div>`;
+      mostrarFoto(p);
     } else if (window.cena3d) window.cena3d.trocarPersonagem(p);
     else { palcoEl.classList.remove("modo-foto"); $("cliente").innerHTML = desenharPersonagem(p); }
     window.aoTrocarPersonagem?.(p);
@@ -332,6 +332,17 @@
     $("aba-transcricao").append(p);
   }
 
+  // Retrato com a boca animada (boca.js); enquanto não carrega, mostra a foto parada.
+  let retratoVivo = null;
+  function mostrarFoto(p) {
+    retratoVivo?.destruir(); retratoVivo = null;
+    $("cliente").innerHTML = `<div class="video"><img src="${p.foto}" alt="${p.nome}"></div>`;
+    if (window.Boca) window.Boca.montar($("cliente").querySelector(".video"), p)
+      .then((r) => { if (atual === p) retratoVivo = r; else r.destruir(); })
+      .catch((e) => console.warn("Boca animada indisponível:", e));
+  }
+  window.addEventListener("boca-pronta", () => { if (atual.foto) mostrarFoto(atual); });
+
   function clienteFala(texto) {
     const palco = $("palco");
     palco.classList.add("falando");
@@ -340,7 +351,9 @@
     $("legenda").classList.toggle("on", legendas);
     transcrever(atual.nome, texto);
     clearTimeout(clienteFala.t);
-    clienteFala.t = setTimeout(() => { palco.classList.remove("falando"); $("legenda").classList.remove("on"); }, Math.max(2500, texto.length * 55));
+    const terminar = () => { palco.classList.remove("falando"); $("legenda").classList.remove("on"); };
+    if (retratoVivo) retratoVivo.falar(texto).then(terminar);
+    else clienteFala.t = setTimeout(terminar, Math.max(2500, texto.length * 55));
   }
 
   // Caixa registradora sintetizada: gaveta, dois sinos e moedas.
@@ -417,6 +430,7 @@
   };
   $("trocar").onclick = () => $("galeria").classList.add("on");
   $("sair").onclick = () => {
+    retratoVivo?.calar();
     const antes = DADOS.conquistas(DADOS.carregar()).filter((c) => c.feita).map((c) => c.id);
     const resultado = fechouContrato ? "fechou" : nota >= 60 ? "proximo" : "perdeu";
     const r = DADOS.registrar({
@@ -483,6 +497,7 @@
   escolher(atual);
   if (!params.get("p")) $("galeria").classList.add("on");
 </script>
+<script type="module" src="boca.js"></script>
 <script type="module">
   import { criarCena, CENARIOS, CENARIO_POR_NICHO } from "./avatar3d.js";
   const $ = (id) => document.getElementById(id);
